@@ -63,7 +63,11 @@ _main_loop() {
         TAILER_CMD="${LOGREAD} -l 50 -tf"
         BOOT=0
     else
-        TAILER_CMD="${LOGREAD} -tf"
+        if [ "${EXTRA_ENTRIES}" -gt 0 ]; then
+            TAILER_CMD="${LOGREAD} -l ${EXTRA_ENTRIES} -tf"
+        else
+            TAILER_CMD="${LOGREAD} -tf"
+        fi
     fi
 
     ${TAILER_CMD} >${PIPE_NAME} 2>&1 &
@@ -96,6 +100,8 @@ _main_loop() {
         if ! curl -fs -X POST -H "Content-type: application/json" -H "Authorization: Basic ${LOKI_AUTH_HEADER}" -d "${post_body}" "${LOKI_PUSH_URL}"; then
             echo "POST FAILED: '${post_body}'"
         fi
+
+        MIN_TIMESTAMP="${ts_ns}"
     done <${PIPE_NAME}
 }
 
@@ -122,8 +128,15 @@ fi
 
 trap "_teardown" SIGINT SIGTERM
 
+if [ ${BOOT} -eq 1 ]; then
+    EXTRA_ENTRIES=0
+else
+    EXTRA_ENTRIES=1
+fi
+
 while true; do
     _main_loop
     echo "tailer exited, starting over" >&2
+    EXTRA_ENTRIES=3
     sleep 1
 done
