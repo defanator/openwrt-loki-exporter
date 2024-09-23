@@ -4,7 +4,7 @@ LOKI_MSG_TEMPLATE='{"streams": [{"stream": {"job": "openwrt_loki_exporter", "hos
 
 _setup() {
     mkfifo ${PIPE_NAME}
-    echo "started with tailer=${TAILER_CMD}" >&2
+    echo "started with tailer=${TAILER_CMD} (BOOT=${BOOT})" >&2
 }
 
 _teardown() {
