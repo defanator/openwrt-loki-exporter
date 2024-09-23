@@ -1,10 +1,12 @@
 #!/bin/ash -u
 
+READ_WHOLE_BUFFER="${BOOT}"
+PIPE_NAME="/tmp/loki_exporter.pipe"
 LOKI_MSG_TEMPLATE='{"streams": [{"stream": {"job": "openwrt_loki_exporter", "host": "archer-uae"}, "values": [["TIMESTAMP", "MESSAGE"]]}]}'
 
 _setup() {
     mkfifo ${PIPE_NAME}
-    echo "started with tailer=${TAILER_CMD} (BOOT=${BOOT})" >&2
+    echo "started with BOOT=${BOOT}" >&2
 }
 
 _teardown() {
@@ -20,7 +22,13 @@ _teardown() {
 trap "_teardown" SIGINT SIGTERM
 
 _main_loop() {
-    $TAILER_CMD >${PIPE_NAME} 2>&1 &
+    if [ ${READ_WHOLE_BUFFER} -ne 0 ]; then
+        TAILER_CMD="logread -l 1000 -tf"
+        READ_WHOLE_BUFFER=0
+    else
+        TAILER_CMD="logread -tf"
+    fi
+    ${TAILER_CMD} >${PIPE_NAME} 2>&1 &
     tailer_pid=$!
 
     while read -r line; do
