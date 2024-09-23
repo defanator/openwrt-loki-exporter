@@ -1,9 +1,5 @@
 #!/bin/ash -u
 
-PIPE_NAME="/tmp/loki_exporter.np"
-TAILER_CMD="/sbin/logread -tf"
-LOKI_PUSH_URL="https://loki.shrdlu.club/loki/api/v1/push"
-LOKI_AUTH_HEADER="YXJjaGVyX3VhZTpFamlrUGlkb3Jh"
 LOKI_MSG_TEMPLATE='{"streams": [{"stream": {"job": "openwrt_loki_exporter", "host": "archer-uae"}, "values": [["TIMESTAMP", "MESSAGE"]]}]}'
 
 _setup() {
