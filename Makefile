@@ -43,9 +43,32 @@ lint: | .venv ## Run linters (shellcheck for .sh, pylint for .py)
 fmt: | .venv ## Run formatters
 	$(TOPDIR)/.venv/bin/python3 -m black tests/*.py
 
+CHECK_ENV_TIMEOUT ?= 30
 create-test-env: ## Spin up testing compose environment with Loki and Grafana
 	docker compose -f tests/compose.yml up -d
-	sleep 5
+	@{ \
+	rc=0 ; \
+	wait_timeout=$(CHECK_ENV_TIMEOUT) ; \
+	loki_ready=0 ; \
+	echo "waiting for loki..." ; \
+	while [ $$wait_timeout -gt 0 ]; do \
+		if curl -fs http://127.0.0.1:3100/ready | grep -- "ready" ; then \
+			loki_ready=1 ; \
+			elapsed=$$(($(CHECK_ENV_TIMEOUT) - wait_timeout)) ; \
+			echo "loki is up after $$elapsed seconds" ; \
+		fi ; \
+		if [ $$loki_ready -gt 0 ]; then \
+			break ; \
+		fi ; \
+		wait_timeout=$$((wait_timeout - 1)) ; \
+		sleep 1 ; \
+	done ; \
+	if [ $$loki_ready -eq 0 ]; then \
+		echo "loki is not ready after $(CHECK_ENV_TIMEOUT) seconds, giving up" ; \
+		rc=1 ; \
+	fi ; \
+	exit $$rc ; \
+	}
 	touch $@
 
 .PHONY: delete-test-env
