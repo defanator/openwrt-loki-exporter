@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
+"""
+Mocking imitator of OpenWRT's logread program
+"""
 
+import os
 import sys
 import argparse
 from time import sleep
@@ -7,6 +11,10 @@ from datetime import datetime, timedelta
 
 
 class MockLogRead:
+    """
+    Base class for mocking logread
+    """
+
     def __init__(self):
         self.lines = []
         self.args = None
@@ -15,6 +23,9 @@ class MockLogRead:
         self.ts_apply_delta = None
 
     def parse_args(self):
+        """
+        Parse command-line arguments
+        """
         parser = argparse.ArgumentParser(
             description="OpenWRT's logread mocking imitator",
             formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -50,35 +61,50 @@ class MockLogRead:
 
     @staticmethod
     def get_ts_existing(line: str) -> float:
+        """
+        Get existing higher precision timestamp from log line
+        """
         try:
             # return int(float(line[26:40]) * 10**9)
             # return float(line[26:40]) * 10**9
             return float(line[26:40])
-        except:
+        except ValueError:
             return -float("inf")
 
     @staticmethod
     def construct_ts_from_line(line: str) -> float:
+        """
+        Construct timestamp from log line datetime string
+        """
         try:
             datetime_str = line[0:24]
             dt = datetime.strptime(datetime_str, "%a %b %d %H:%M:%S %Y")
             return dt.timestamp() * 1.0
-        except Exception as exc:
+        except ValueError:
             return -float("inf")
 
     @staticmethod
     def datetime_str_from_ts(ts: float) -> str:
+        """
+        Construct datetime string from timestamp
+        """
         dt = datetime.fromtimestamp(int(ts))
         return dt.strftime("%a %b %d %H:%M:%S %Y")
 
     @staticmethod
     def get_msg_from_line(line: str) -> str:
+        """
+        Get payload part of log line (message itself)
+        """
         if line[25] == "[":
             return line[42:]
         return line[25:]
 
     def load_lines(self):
-        with open(self.args.log_file, "r") as file:
+        """
+        Load lines from pre-seeded log file
+        """
+        with open(self.args.log_file, "r", encoding="utf-8") as file:
             self.lines = file.readlines()
 
         ts_orig = self.get_ts_existing(self.lines[0])
@@ -89,6 +115,9 @@ class MockLogRead:
         self.ts_apply_delta = self.ts_start_from.timestamp() - self.ts_first_line
 
     def print_line(self, line: str):
+        """
+        Print single log line
+        """
         ts_existing = self.get_ts_existing(line)
         ts_constructed = self.construct_ts_from_line(line)
 
@@ -108,6 +137,9 @@ class MockLogRead:
         print(new_line, end="", flush=True)
 
     def print_starting_lines(self, delay=0.0):
+        """
+        Print initial portion of log lines (depending on "-l" and "-f" CLA)
+        """
         if self.args.follow and self.args.count is None:
             return
 
@@ -122,11 +154,17 @@ class MockLogRead:
                 sleep(delay)
 
     def follow(self, delay=1.0):
+        """
+        Imitate tailing mode of original logread
+        """
         last_line = self.lines[-1]
         msg = self.get_msg_from_line(last_line)
         ts_existing = self.get_ts_existing(last_line)
         ts_constructed = self.construct_ts_from_line(last_line)
         ts = max(ts_existing, ts_constructed) + self.ts_apply_delta
+
+        max_cycles = int(os.environ.get("MAX_FOLLOW_CYCLES", 0))
+        n = 1
 
         while True:
             ts += 1
@@ -138,21 +176,26 @@ class MockLogRead:
                 line = f"{datetime_str} {msg}"
 
             print(line, end="", flush=True)
+
+            if max_cycles != 0 and n == max_cycles:
+                break
+
             sleep(delay)
+            n += 1
 
     def run(self):
+        """
+        Entrypoint
+        """
         try:
             self.parse_args()
             self.load_lines()
             self.print_starting_lines()
             if self.args.follow:
                 self.follow()
-            return
+            return 0
         except KeyboardInterrupt:
             return 0
-        except Exception as exc:
-            print(exc)
-            return 1
 
 
 if __name__ == "__main__":

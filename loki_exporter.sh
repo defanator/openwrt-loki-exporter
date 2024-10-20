@@ -130,7 +130,7 @@ if [ ${BOOT} -eq 1 ]; then
     _do_bulk_post
 fi
 
-trap "_teardown" SIGINT SIGTERM
+trap "_teardown" SIGINT SIGTERM EXIT
 
 if [ ${BOOT} -eq 1 ]; then
     EXTRA_ENTRIES=0
@@ -140,6 +140,9 @@ fi
 
 while true; do
     _main_loop
+    if [ "${AUTOTEST}" -eq 1 ]; then
+        exit 0
+    fi
     echo "tailer exited, starting over" >&2
     EXTRA_ENTRIES=3
     sleep 1
