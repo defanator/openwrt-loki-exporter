@@ -48,6 +48,15 @@ def test_line_count():
     assert "result" in data.keys()
     result = data.get("result")
     assert isinstance(result, list)
+    assert len(result) == 1
+
+    total_entries = 0
+    for h in result:
+        for k, v in h.items():
+            if k == "values":
+                total_entries += len(v)
+
+    assert total_entries == 491
 
     assert "stats" in data.keys()
     stats = data.get("stats")
