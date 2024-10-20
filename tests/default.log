@@ -1,0 +1,482 @@
+Mon Sep 23 17:16:31 2024 [1727097391.977] kern.notice kernel: [    0.000000] Linux version 5.15.150 (builder@buildhost) (mips-openwrt-linux-musl-gcc (OpenWrt GCC 12.3.0 r23809-234f1a2efa) 12.3.0, GNU ld (GNU Binutils) 2.40.0) #0 Fri Mar 22 22:09:42 2024
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.info kernel: [    0.000000] printk: bootconsole [early0] enabled
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.info kernel: [    0.000000] CPU0 revision is: 00019750 (MIPS 74Kc)
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.info kernel: [    0.000000] MIPS: machine is TP-Link Archer C7 v5
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.info kernel: [    0.000000] SoC: Qualcomm Atheros QCA956X ver 1 rev 0
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.info kernel: [    0.000000] Initrd not found or empty - disabling initrd
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.info kernel: [    0.000000] Primary instruction cache 64kB, VIPT, 4-way, linesize 32 bytes.
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.info kernel: [    0.000000] Primary data cache 32kB, 4-way, VIPT, cache aliases, linesize 32 bytes
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.info kernel: [    0.000000] Zone ranges:
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.info kernel: [    0.000000]   Normal   [mem 0x0000000000000000-0x0000000007ffffff]
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.info kernel: [    0.000000] Movable zone start for each node
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.info kernel: [    0.000000] Early memory node ranges
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.info kernel: [    0.000000]   node   0: [mem 0x0000000000000000-0x0000000007ffffff]
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.info kernel: [    0.000000] Initmem setup node 0 [mem 0x0000000000000000-0x0000000007ffffff]
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.debug kernel: [    0.000000] pcpu-alloc: s0 r0 d32768 u32768 alloc=1*32768
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.debug kernel: [    0.000000] pcpu-alloc: [0] 0
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.info kernel: [    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 32480
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.notice kernel: [    0.000000] Kernel command line: console=ttyS0,115200n8 rootfstype=squashfs,jffs2
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.info kernel: [    0.000000] Dentry cache hash table entries: 16384 (order: 4, 65536 bytes, linear)
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.info kernel: [    0.000000] Inode-cache hash table entries: 8192 (order: 3, 32768 bytes, linear)
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.info kernel: [    0.000000] Writing ErrCtl register=00000000
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.info kernel: [    0.000000] Readback ErrCtl register=00000000
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.info kernel: [    0.000000] mem auto-init: stack:off, heap alloc:off, heap free:off
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.info kernel: [    0.000000] Memory: 120816K/131072K available (6082K kernel code, 597K rwdata, 780K rodata, 1236K init, 216K bss, 10256K reserved, 0K cma-reserved)
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.info kernel: [    0.000000] SLUB: HWalign=32, Order=0-3, MinObjects=0, CPUs=1, Nodes=1
+Mon Sep 23 17:16:31 2024 [1727097391.978] kern.info kernel: [    0.000000] NR_IRQS: 51
+Mon Sep 23 17:16:31 2024 [1727097391.979] kern.info kernel: [    0.000000] CPU clock: 775.000 MHz
+Mon Sep 23 17:16:31 2024 [1727097391.979] kern.info kernel: [    0.000000] clocksource: MIPS: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 4932285024 ns
+Mon Sep 23 17:16:31 2024 [1727097391.979] kern.info kernel: [    0.000001] sched_clock: 32 bits at 387MHz, resolution 2ns, wraps every 5541893118ns
+Mon Sep 23 17:16:31 2024 [1727097391.979] kern.info kernel: [    0.008289] Calibrating delay loop... 385.84 BogoMIPS (lpj=1929216)
+Mon Sep 23 17:16:31 2024 [1727097391.979] kern.info kernel: [    0.074815] pid_max: default: 32768 minimum: 301
+Mon Sep 23 17:16:31 2024 [1727097391.979] kern.info kernel: [    0.080506] Mount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+Mon Sep 23 17:16:31 2024 [1727097391.979] kern.info kernel: [    0.088243] Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+Mon Sep 23 17:16:31 2024 [1727097391.979] kern.info kernel: [    0.102484] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 19112604462750000 ns
+Mon Sep 23 17:16:31 2024 [1727097391.979] kern.info kernel: [    0.112901] futex hash table entries: 256 (order: -1, 3072 bytes, linear)
+Mon Sep 23 17:16:31 2024 [1727097391.979] kern.info kernel: [    0.120254] pinctrl core: initialized pinctrl subsystem
+Mon Sep 23 17:16:31 2024 [1727097391.979] kern.info kernel: [    0.127456] NET: Registered PF_NETLINK/PF_ROUTE protocol family
+Mon Sep 23 17:16:31 2024 [1727097391.979] kern.info kernel: [    0.134246] thermal_sys: Registered thermal governor 'step_wise'
+Mon Sep 23 17:16:31 2024 [1727097391.979] kern.info kernel: [    0.146611] clocksource: Switched to clocksource MIPS
+Mon Sep 23 17:16:31 2024 [1727097391.979] kern.info kernel: [    0.159583] NET: Registered PF_INET protocol family
+Mon Sep 23 17:16:31 2024 [1727097391.979] kern.info kernel: [    0.164975] IP idents hash table entries: 2048 (order: 2, 16384 bytes, linear)
+Mon Sep 23 17:16:31 2024 [1727097391.979] kern.info kernel: [    0.173517] tcp_listen_portaddr_hash hash table entries: 1024 (order: 0, 4096 bytes, linear)
+Mon Sep 23 17:16:31 2024 [1727097391.979] kern.info kernel: [    0.182493] Table-perturb hash table entries: 65536 (order: 6, 262144 bytes, linear)
+Mon Sep 23 17:16:31 2024 [1727097391.979] kern.info kernel: [    0.190683] TCP established hash table entries: 1024 (order: 0, 4096 bytes, linear)
+Mon Sep 23 17:16:31 2024 [1727097391.979] kern.info kernel: [    0.198772] TCP bind hash table entries: 1024 (order: 0, 4096 bytes, linear)
+Mon Sep 23 17:16:31 2024 [1727097391.979] kern.info kernel: [    0.206219] TCP: Hash tables configured (established 1024 bind 1024)
+Mon Sep 23 17:16:31 2024 [1727097391.980] kern.info kernel: [    0.213069] UDP hash table entries: 256 (order: 0, 4096 bytes, linear)
+Mon Sep 23 17:16:31 2024 [1727097391.980] kern.info kernel: [    0.220030] UDP-Lite hash table entries: 256 (order: 0, 4096 bytes, linear)
+Mon Sep 23 17:16:31 2024 [1727097391.980] kern.info kernel: [    0.227757] NET: Registered PF_UNIX/PF_LOCAL protocol family
+Mon Sep 23 17:16:31 2024 [1727097391.980] kern.info kernel: [    0.233769] PCI: CLS 0 bytes, default 32
+Mon Sep 23 17:16:31 2024 [1727097391.980] kern.info kernel: [    0.241175] workingset: timestamp_bits=14 max_order=15 bucket_order=1
+Mon Sep 23 17:16:31 2024 [1727097391.980] kern.info kernel: [    0.252634] squashfs: version 4.0 (2009/01/31) Phillip Lougher
+Mon Sep 23 17:16:31 2024 [1727097391.980] kern.info kernel: [    0.258855] jffs2: version 2.2 (NAND) (SUMMARY) (LZMA) (RTIME) (CMODE_PRIORITY) (c) 2001-2006 Red Hat, Inc.
+Mon Sep 23 17:16:31 2024 [1727097391.980] kern.info kernel: [    0.270494] Block layer SCSI generic (bsg) driver version 0.4 loaded (major 251)
+Mon Sep 23 17:16:31 2024 [1727097391.990] kern.info kernel: [    0.281931] pinctrl-single 1804002c.pinmux: 544 pins, size 68
+Mon Sep 23 17:16:31 2024 [1727097391.990] kern.info kernel: [    0.288618] gpio-export gpio-export: 1 gpio(s) exported
+Mon Sep 23 17:16:31 2024 [1727097391.990] kern.info kernel: [    0.295130] Serial: 8250/16550 driver, 16 ports, IRQ sharing enabled
+Mon Sep 23 17:16:31 2024 [1727097391.990] kern.info kernel: [    0.304288] printk: console [ttyS0] disabled
+Mon Sep 23 17:16:31 2024 [1727097391.990] kern.info kernel: [    0.308911] 18020000.uart: ttyS0 at MMIO 0x18020000 (irq = 9, base_baud = 1562500) is a 16550A
+Mon Sep 23 17:16:31 2024 [1727097391.990] kern.info kernel: [    0.318034] printk: console [ttyS0] enabled
+Mon Sep 23 17:16:31 2024 [1727097391.990] kern.info kernel: [    0.327101] printk: bootconsole [early0] disabled
+Mon Sep 23 17:16:31 2024 [1727097391.990] kern.info kernel: [    0.355667] spi-nor spi0.0: w25q128 (16384 Kbytes)
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.notice kernel: [    0.360775] 8 fixed-partitions partitions found on MTD device spi0.0
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.err kernel: [    0.367417] OF: Bad cell count for /ahb/spi@1f000000/flash@0/partitions
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.err kernel: [    0.374282] OF: Bad cell count for /ahb/spi@1f000000/flash@0/partitions
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.err kernel: [    0.381656] OF: Bad cell count for /ahb/spi@1f000000/flash@0/partitions
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.err kernel: [    0.388574] OF: Bad cell count for /ahb/spi@1f000000/flash@0/partitions
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.notice kernel: [    0.395612] Creating 8 MTD partitions on "spi0.0":
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.notice kernel: [    0.400614] 0x000000000000-0x000000020000 : "factory-uboot"
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.notice kernel: [    0.411310] 0x000000020000-0x000000040000 : "u-boot"
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.notice kernel: [    0.417492] 0x000000040000-0x000000050000 : "partition-table"
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.notice kernel: [    0.425814] 0x000000050000-0x000000060000 : "art"
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.notice kernel: [    0.431818] 0x000000060000-0x000000080000 : "info"
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.notice kernel: [    0.439341] 0x000000080000-0x0000000c0000 : "user-config"
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.notice kernel: [    0.445962] 0x0000000c0000-0x000000fc0000 : "firmware"
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.notice kernel: [    0.453966] 2 uimage-fw partitions found on MTD device firmware
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.notice kernel: [    0.460158] Creating 2 MTD partitions on "firmware":
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.notice kernel: [    0.465295] 0x000000000000-0x0000002391ac : "kernel"
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.warn kernel: [    0.470440] mtd: partition "kernel" doesn't end on an erase/write block -- force read-only
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.notice kernel: [    0.480691] 0x0000002391ac-0x000000f00000 : "rootfs"
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.warn kernel: [    0.485837] mtd: partition "rootfs" doesn't start on an erase/write block boundary -- force read-only
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.info kernel: [    0.496324] mtd: setting mtd8 (rootfs) as root device
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.notice kernel: [    0.502491] 1 squashfs-split partitions found on MTD device rootfs
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.notice kernel: [    0.508955] 0x000000620000-0x000000f00000 : "rootfs_data"
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.notice kernel: [    0.515517] 0x000000ff0000-0x000001000000 : "default-config"
+Mon Sep 23 17:16:31 2024 [1727097391.991] kern.info kernel: [    1.260665] switch0: Atheros AR8337 rev. 2 switch registered on mdio.0
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.info kernel: [    1.918218] ag71xx 19000000.eth: connected to PHY at mdio.0:00 [uid=004dd036, driver=Atheros AR8216/AR8236/AR8316]
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.info kernel: [    1.929578] eth0: Atheros AG71xx at 0xb9000000, irq 4, mode: sgmii
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.info kernel: [    1.936482] i2c_dev: i2c /dev entries driver
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.info kernel: [    1.944195] NET: Registered PF_INET6 protocol family
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.info kernel: [    1.961806] Segment Routing with IPv6
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.info kernel: [    1.965670] In-situ OAM (IOAM) with IPv6
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.info kernel: [    1.969915] NET: Registered PF_PACKET protocol family
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.info kernel: [    1.975236] bridge: filtering via arp/ip/ip6tables is no longer available by default. Update your scripts to load br_netfilter if you need this.
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.info kernel: [    1.988951] 8021q: 802.1Q VLAN Support v1.8
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.info kernel: [    1.994478] PCI host bridge to bus 0000:00
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.info kernel: [    1.998773] pci_bus 0000:00: root bus resource [mem 0x12000000-0x13ffffff]
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.info kernel: [    2.005882] pci_bus 0000:00: root bus resource [io  0x0000]
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.info kernel: [    2.011646] pci_bus 0000:00: No busn resource found for root bus, will use [bus 00-ff]
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.info kernel: [    2.019883] pci 0000:00:00.0: [168c:003c] type 00 class 0x028000
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.info kernel: [    2.026125] pci 0000:00:00.0: reg 0x10: [mem 0x00000000-0x001fffff 64bit]
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.info kernel: [    2.033197] pci 0000:00:00.0: reg 0x30: [mem 0x00000000-0x0000ffff pref]
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.info kernel: [    2.040199] pci 0000:00:00.0: supports D1 D2
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.info kernel: [    2.045565] pci_bus 0000:00: busn_res: [bus 00-ff] end is updated to 00
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.info kernel: [    2.052459] pci 0000:00:00.0: BAR 0: assigned [mem 0x12000000-0x121fffff 64bit]
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.info kernel: [    2.060040] pci 0000:00:00.0: BAR 6: assigned [mem 0x12200000-0x1220ffff pref]
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.info kernel: [    2.079804] VFS: Mounted root (squashfs filesystem) readonly on device 31:8.
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.info kernel: [    2.093807] Freeing unused kernel image (initmem) memory: 1236K
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.warn kernel: [    2.099961] This architecture does not have kernel memory protection.
+Mon Sep 23 17:16:31 2024 [1727097391.992] kern.info kernel: [    2.106629] Run /sbin/init as init process
+Mon Sep 23 17:16:31 2024 [1727097391.993] kern.debug kernel: [    2.110855]   with arguments:
+Mon Sep 23 17:16:31 2024 [1727097391.993] kern.debug kernel: [    2.110860]     /sbin/init
+Mon Sep 23 17:16:31 2024 [1727097391.993] kern.debug kernel: [    2.110865]   with environment:
+Mon Sep 23 17:16:31 2024 [1727097391.993] kern.debug kernel: [    2.110868]     HOME=/
+Mon Sep 23 17:16:31 2024 [1727097391.993] kern.debug kernel: [    2.110873]     TERM=linux
+Mon Sep 23 17:16:31 2024 [1727097391.993] user.info kernel: [    2.757200] init: Console is alive
+Mon Sep 23 17:16:31 2024 [1727097391.993] user.info kernel: [    2.761219] init: - watchdog -
+Mon Sep 23 17:16:31 2024 [1727097391.993] user.info kernel: [    4.232145] kmodloader: loading kernel modules from /etc/modules-boot.d/*
+Mon Sep 23 17:16:31 2024 [1727097391.993] kern.info kernel: [    4.315239] usbcore: registered new interface driver usbfs
+Mon Sep 23 17:16:31 2024 [1727097391.993] kern.info kernel: [    4.321022] usbcore: registered new interface driver hub
+Mon Sep 23 17:16:31 2024 [1727097391.993] kern.info kernel: [    4.326680] usbcore: registered new device driver usb
+Mon Sep 23 17:16:31 2024 [1727097391.993] kern.info kernel: [    4.339173] ehci_hcd: USB 2.0 'Enhanced' Host Controller (EHCI) Driver
+Mon Sep 23 17:16:31 2024 [1727097391.993] kern.info kernel: [    4.349284] fsl-ehci: Freescale EHCI Host controller driver
+Mon Sep 23 17:16:31 2024 [1727097391.993] kern.info kernel: [    4.356767] ehci-platform: EHCI generic platform driver
+Mon Sep 23 17:16:31 2024 [1727097391.993] kern.info kernel: [    4.362499] ehci-platform 1b000000.usb: EHCI Host Controller
+Mon Sep 23 17:16:31 2024 [1727097391.993] kern.info kernel: [    4.368437] ehci-platform 1b000000.usb: new USB bus registered, assigned bus number 1
+Mon Sep 23 17:16:31 2024 [1727097391.993] kern.info kernel: [    4.376721] ehci-platform 1b000000.usb: irq 13, io mem 0x1b000000
+Mon Sep 23 17:16:31 2024 [1727097391.994] kern.info kernel: [    4.406626] ehci-platform 1b000000.usb: USB 2.0 started, EHCI 1.00
+Mon Sep 23 17:16:31 2024 [1727097391.994] kern.info kernel: [    4.413954] hub 1-0:1.0: USB hub found
+Mon Sep 23 17:16:31 2024 [1727097391.994] kern.info kernel: [    4.418620] hub 1-0:1.0: 1 port detected
+Mon Sep 23 17:16:31 2024 [1727097391.994] user.info kernel: [    4.426252] kmodloader: done loading kernel modules from /etc/modules-boot.d/*
+Mon Sep 23 17:16:31 2024 [1727097391.994] user.info kernel: [    4.444816] init: - preinit -
+Mon Sep 23 17:16:31 2024 [1727097391.994] kern.info kernel: [    4.866857] usb 1-1: new high-speed USB device number 2 using ehci-platform
+Mon Sep 23 17:16:31 2024 [1727097391.994] kern.notice kernel: [    5.436889] random: procd: uninitialized urandom read (4 bytes read)
+Mon Sep 23 17:16:31 2024 [1727097391.994] kern.notice kernel: [    6.225997] random: jshn: uninitialized urandom read (4 bytes read)
+Mon Sep 23 17:16:31 2024 [1727097391.994] kern.notice kernel: [    6.603288] random: jshn: uninitialized urandom read (4 bytes read)
+Mon Sep 23 17:16:31 2024 [1727097391.994] kern.notice kernel: [    6.871433] random: jshn: uninitialized urandom read (4 bytes read)
+Mon Sep 23 17:16:31 2024 [1727097391.994] kern.notice kernel: [    6.997051] random: jshn: uninitialized urandom read (4 bytes read)
+Mon Sep 23 17:16:31 2024 [1727097391.994] kern.info kernel: [    8.353823] Atheros AR8216/AR8236/AR8316 mdio.0:00: Port 1 is up
+Mon Sep 23 17:16:31 2024 [1727097391.994] kern.info kernel: [    8.360578] Atheros AR8216/AR8236/AR8316 mdio.0:00: Port 4 is up
+Mon Sep 23 17:16:31 2024 [1727097391.994] kern.info kernel: [    8.366956] Atheros AR8216/AR8236/AR8316 mdio.0:00: Port 5 is up
+Mon Sep 23 17:16:31 2024 [1727097391.994] kern.info kernel: [    8.396364] eth0: link up (1000Mbps/Full duplex)
+Mon Sep 23 17:16:31 2024 [1727097391.994] kern.info kernel: [    8.407440] IPv6: ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
+Mon Sep 23 17:16:31 2024 [1727097391.994] kern.info kernel: [    8.414313] IPv6: ADDRCONF(NETDEV_CHANGE): eth0.1: link becomes ready
+Mon Sep 23 17:16:31 2024 [1727097391.994] kern.notice kernel: [   10.790464] jffs2: notice: (461) jffs2_build_xattr_subsystem: complete building xattr subsystem, 72 of xdatum (71 unchecked, 1 orphan) and 99 of xref (2 dead, 0 orphan) found.
+Mon Sep 23 17:16:31 2024 [1727097391.994] user.info kernel: [   10.821480] mount_root: loading kmods from internal overlay
+Mon Sep 23 17:16:31 2024 [1727097391.994] user.info kernel: [   11.211741] kmodloader: loading kernel modules from /tmp/overlay/upper/etc/modules-boot.d/*
+Mon Sep 23 17:16:31 2024 [1727097391.994] kern.notice kernel: [   11.741038] SCSI subsystem initialized
+Mon Sep 23 17:16:31 2024 [1727097391.994] kern.info kernel: [   11.797449] usb-storage 1-1:1.0: USB Mass Storage device detected
+Mon Sep 23 17:16:31 2024 [1727097391.994] kern.info kernel: [   11.805418] scsi host0: usb-storage 1-1:1.0
+Mon Sep 23 17:16:31 2024 [1727097391.995] kern.info kernel: [   11.810524] usbcore: registered new interface driver usb-storage
+Mon Sep 23 17:16:31 2024 [1727097391.995] user.info kernel: [   11.819162] kmodloader: done loading kernel modules from /tmp/overlay/upper/etc/modules-boot.d/*
+Mon Sep 23 17:16:31 2024 [1727097391.995] user.info kernel: [   12.307862] block: attempting to load /tmp/jffs_cfg/upper/etc/config/fstab
+Mon Sep 23 17:16:31 2024 [1727097391.995] user.info kernel: [   12.319285] block: extroot: device not present, retrying in 5 seconds
+Mon Sep 23 17:16:31 2024 [1727097391.995] kern.notice kernel: [   12.826060] scsi 0:0:0:0: Direct-Access      USB      SanDisk 3.2Gen1 1.00 PQ: 0 ANSI: 6
+Mon Sep 23 17:16:31 2024 [1727097391.995] kern.notice kernel: [   12.837314] sd 0:0:0:0: [sda] 120176640 512-byte logical blocks: (61.5 GB/57.3 GiB)
+Mon Sep 23 17:16:31 2024 [1727097391.995] kern.notice kernel: [   12.853018] sd 0:0:0:0: [sda] Write Protect is off
+Mon Sep 23 17:16:31 2024 [1727097391.995] kern.debug kernel: [   12.858032] sd 0:0:0:0: [sda] Mode Sense: 43 00 00 00
+Mon Sep 23 17:16:31 2024 [1727097391.995] kern.notice kernel: [   12.867407] sd 0:0:0:0: [sda] Write cache: disabled, read cache: enabled, doesn't support DPO or FUA
+Mon Sep 23 17:16:31 2024 [1727097391.995] kern.info kernel: [   12.935801]  sda: sda1
+Mon Sep 23 17:16:31 2024 [1727097391.995] kern.notice kernel: [   12.942126] sd 0:0:0:0: [sda] Attached SCSI removable disk
+Mon Sep 23 17:16:31 2024 [1727097391.995] kern.info kernel: [   18.278245] EXT4-fs (sda1): recovery complete
+Mon Sep 23 17:16:31 2024 [1727097391.995] kern.info kernel: [   18.289627] EXT4-fs (sda1): mounted filesystem with ordered data mode. Opts: . Quota mode: disabled.
+Mon Sep 23 17:16:31 2024 [1727097391.995] user.info kernel: [   18.322676] mount_root: switched to extroot
+Mon Sep 23 17:16:31 2024 [1727097391.995] user.warn kernel: [   18.340408] urandom-seed: Seeding with /etc/urandom.seed
+Mon Sep 23 17:16:31 2024 [1727097391.995] kern.info kernel: [   18.498605] eth0: link down
+Mon Sep 23 17:16:31 2024 [1727097391.995] user.info kernel: [   18.534529] procd: - early -
+Mon Sep 23 17:16:31 2024 [1727097391.995] user.info kernel: [   18.537930] procd: - watchdog -
+Mon Sep 23 17:16:31 2024 [1727097391.995] user.info kernel: [   19.245433] procd: - watchdog -
+Mon Sep 23 17:16:31 2024 [1727097391.995] user.info kernel: [   19.251804] procd: - ubus -
+Mon Sep 23 17:16:31 2024 [1727097391.995] kern.notice kernel: [   19.412093] random: ubusd: uninitialized urandom read (4 bytes read)
+Mon Sep 23 17:16:31 2024 [1727097391.995] kern.notice kernel: [   19.432033] random: ubusd: uninitialized urandom read (4 bytes read)
+Mon Sep 23 17:16:31 2024 [1727097391.995] kern.notice kernel: [   19.446408] random: ubusd: uninitialized urandom read (4 bytes read)
+Mon Sep 23 17:16:31 2024 [1727097391.995] user.info kernel: [   19.465608] procd: - init -
+Mon Sep 23 17:16:31 2024 [1727097391.996] kern.notice kernel: [   20.644997] random: jshn: uninitialized urandom read (4 bytes read)
+Mon Sep 23 17:16:31 2024 [1727097391.996] kern.notice kernel: [   20.723774] random: ubusd: uninitialized urandom read (4 bytes read)
+Mon Sep 23 17:16:31 2024 [1727097391.996] user.info kernel: [   21.028968] kmodloader: loading kernel modules from /etc/modules.d/*
+Mon Sep 23 17:16:31 2024 [1727097391.996] kern.info kernel: [   21.917940] Loading modules backported from Linux version v6.1.24-0-g0102425ac76b
+Mon Sep 23 17:16:31 2024 [1727097391.996] kern.info kernel: [   21.925681] Backport generated by backports.git v5.15.92-1-44-gd6ea70fafd36
+Mon Sep 23 17:16:31 2024 [1727097391.996] kern.info kernel: [   22.581058] PPP generic driver version 2.4.2
+Mon Sep 23 17:16:31 2024 [1727097391.996] kern.info kernel: [   22.599699] NET: Registered PF_PPPOX protocol family
+Mon Sep 23 17:16:31 2024 [1727097391.996] kern.info kernel: [   22.624078] wireguard: WireGuard 1.0.0 loaded. See www.wireguard.com for information.
+Mon Sep 23 17:16:31 2024 [1727097391.996] kern.info kernel: [   22.632222] wireguard: Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
+Mon Sep 23 17:16:31 2024 [1727097391.996] kern.info kernel: [   22.777988] ath10k 5.15 driver, optimized for CT firmware, probing pci device: 0x3c.
+Mon Sep 23 17:16:31 2024 [1727097391.996] kern.info kernel: [   22.808234] ath10k_pci 0000:00:00.0: enabling device (0000 -> 0002)
+Mon Sep 23 17:16:31 2024 [1727097391.996] kern.info kernel: [   22.814890] ath10k_pci 0000:00:00.0: pci irq legacy oper_irq_mode 1 irq_mode 0 reset_mode 0
+Mon Sep 23 17:16:31 2024 [1727097391.996] user.info kernel: [   23.554709] urngd: v1.0.2 started.
+Mon Sep 23 17:16:31 2024 [1727097391.996] kern.notice kernel: [   25.343818] random: crng init done
+Mon Sep 23 17:16:31 2024 [1727097391.996] kern.notice kernel: [   25.347413] random: 25 urandom warning(s) missed due to ratelimiting
+Mon Sep 23 17:16:31 2024 [1727097391.996] kern.notice kernel: [   26.999721] jffs2: notice: (798) jffs2_build_xattr_subsystem: complete building xattr subsystem, 72 of xdatum (71 unchecked, 1 orphan) and 99 of xref (2 dead, 0 orphan) found.
+Mon Sep 23 17:16:31 2024 [1727097391.996] kern.info kernel: [   39.184268] ath10k_pci 0000:00:00.0: qca988x hw2.0 target 0x4100016c chip_id 0x043202ff sub 0000:0000
+Mon Sep 23 17:16:31 2024 [1727097391.997] kern.info kernel: [   39.193883] ath10k_pci 0000:00:00.0: kconfig debug 0 debugfs 1 tracing 0 dfs 1 testmode 0
+Mon Sep 23 17:16:31 2024 [1727097391.997] kern.info kernel: [   39.205875] ath10k_pci 0000:00:00.0: firmware ver 10.1-ct-8x-__fW-022-ecad3248 api 2 features wmi-10.x,has-wmi-mgmt-tx,mfp,txstatus-noack,wmi-10.x-CT,ratemask-CT,txrate-CT,get-temp-CT,tx-rc-CT,cust-stats-CT,retry-gt2-CT,txrate2-CT,beacon-cb-CT,wmi-block-ack-CT crc32 3e4cf97f
+Mon Sep 23 17:16:31 2024 [1727097391.997] kern.info kernel: [   39.326680] ath10k_pci 0000:00:00.0: Loading BDF type 0
+Mon Sep 23 17:16:31 2024 [1727097391.997] kern.info kernel: [   40.158509] ath10k_pci 0000:00:00.0: board_file api 1 bmi_id N/A crc32 bebc7c08
+Mon Sep 23 17:16:31 2024 [1727097391.997] kern.warn kernel: [   41.160437] ath10k_pci 0000:00:00.0: 10.1 wmi init: vdevs: 16  peers: 127  tid: 256
+Mon Sep 23 17:16:31 2024 [1727097391.997] kern.info kernel: [   41.177221] ath10k_pci 0000:00:00.0: wmi print 'P 128 V 8 T 410'
+Mon Sep 23 17:16:31 2024 [1727097391.997] kern.info kernel: [   41.183675] ath10k_pci 0000:00:00.0: wmi print 'msdu-desc: 1424  sw-crypt: 0 ct-sta: 0'
+Mon Sep 23 17:16:31 2024 [1727097391.997] kern.info kernel: [   41.191992] ath10k_pci 0000:00:00.0: wmi print 'alloc rem: 24984 iram: 38672'
+Mon Sep 23 17:16:31 2024 [1727097391.997] kern.info kernel: [   41.245938] ath10k_pci 0000:00:00.0: htt-ver 2.1 wmi-op 2 htt-op 2 cal file max-sta 128 raw 0 hwcrypto 1
+Mon Sep 23 17:16:31 2024 [1727097391.997] kern.info kernel: [   41.259640] ath10k_pci 0000:00:00.0: NOTE:  Firmware DBGLOG output disabled in debug_mask: 0x10000000
+Mon Sep 23 17:16:31 2024 [1727097391.997] kern.debug kernel: [   41.400715] ath: EEPROM regdomain: 0x0
+Mon Sep 23 17:16:31 2024 [1727097391.997] kern.debug kernel: [   41.400737] ath: EEPROM indicates default country code should be used
+Mon Sep 23 17:16:31 2024 [1727097391.997] kern.debug kernel: [   41.400743] ath: doing EEPROM country->regdmn map search
+Mon Sep 23 17:16:31 2024 [1727097391.997] kern.debug kernel: [   41.400756] ath: country maps to regdmn code: 0x3a
+Mon Sep 23 17:16:31 2024 [1727097391.997] kern.debug kernel: [   41.400763] ath: Country alpha2 being used: US
+Mon Sep 23 17:16:31 2024 [1727097391.997] kern.debug kernel: [   41.400769] ath: Regpair used: 0x3a
+Mon Sep 23 17:16:31 2024 [1727097391.997] kern.debug kernel: [   41.488290] ath: EEPROM regdomain: 0x0
+Mon Sep 23 17:16:31 2024 [1727097391.997] kern.debug kernel: [   41.488314] ath: EEPROM indicates default country code should be used
+Mon Sep 23 17:16:31 2024 [1727097391.997] kern.debug kernel: [   41.488320] ath: doing EEPROM country->regdmn map search
+Mon Sep 23 17:16:31 2024 [1727097391.997] kern.debug kernel: [   41.488334] ath: country maps to regdmn code: 0x3a
+Mon Sep 23 17:16:31 2024 [1727097391.997] kern.debug kernel: [   41.488340] ath: Country alpha2 being used: US
+Mon Sep 23 17:16:31 2024 [1727097391.997] kern.debug kernel: [   41.488347] ath: Regpair used: 0x3a
+Mon Sep 23 17:16:31 2024 [1727097391.998] kern.debug kernel: [   41.499982] ieee80211 phy1: Selected rate control algorithm 'minstrel_ht'
+Mon Sep 23 17:16:31 2024 [1727097391.998] kern.info kernel: [   41.501921] ieee80211 phy1: Atheros AR9561 Rev:0 mem=0xb8100000, irq=2
+Mon Sep 23 17:16:31 2024 [1727097391.998] user.info kernel: [   41.539103] kmodloader: done loading kernel modules from /etc/modules.d/*
+Mon Sep 23 17:16:34 2024 [1727097394.370] daemon.info dnsmasq[1]: started, version 2.90 cachesize 150
+Mon Sep 23 17:16:34 2024 [1727097394.382] daemon.info dnsmasq[1]: DNS service limited to local subnets
+Mon Sep 23 17:16:34 2024 [1727097394.383] daemon.info dnsmasq[1]: compile time options: IPv6 GNU-getopt no-DBus UBus no-i18n no-IDN DHCP no-DHCPv6 no-Lua TFTP no-conntrack no-ipset no-nftset no-auth no-cryptohash no-DNSSEC no-ID loop-detect inotify dumpfile
+Mon Sep 23 17:16:34 2024 [1727097394.383] daemon.info dnsmasq[1]: UBus support enabled: connected to system bus
+Mon Sep 23 17:16:34 2024 [1727097394.389] daemon.info dnsmasq[1]: using only locally-known addresses for test
+Mon Sep 23 17:16:34 2024 [1727097394.390] daemon.info dnsmasq[1]: using only locally-known addresses for onion
+Mon Sep 23 17:16:34 2024 [1727097394.390] daemon.info dnsmasq[1]: using only locally-known addresses for localhost
+Mon Sep 23 17:16:34 2024 [1727097394.401] daemon.info dnsmasq[1]: using only locally-known addresses for local
+Mon Sep 23 17:16:34 2024 [1727097394.401] daemon.info dnsmasq[1]: using only locally-known addresses for invalid
+Mon Sep 23 17:16:34 2024 [1727097394.406] daemon.info dnsmasq[1]: using only locally-known addresses for bind
+Mon Sep 23 17:16:34 2024 [1727097394.408] daemon.info dnsmasq[1]: using only locally-known addresses for use-application-dns.net
+Mon Sep 23 17:16:34 2024 [1727097394.408] daemon.info dnsmasq[1]: using only locally-known addresses for lan
+Mon Sep 23 17:16:34 2024 [1727097394.409] daemon.warn dnsmasq[1]: no servers found in /tmp/resolv.conf.d/resolv.conf.auto, will retry
+Mon Sep 23 17:16:34 2024 [1727097394.410] daemon.info dnsmasq[1]: read /etc/hosts - 12 names
+Mon Sep 23 17:16:34 2024 [1727097394.415] daemon.info dnsmasq[1]: read /tmp/hosts/dhcp.cfg01411c - 0 names
+Mon Sep 23 17:16:34 2024 [1727097394.896] authpriv.info dropbear[1539]: Not backgrounding
+Mon Sep 23 17:16:37 2024 [1727097397.889] daemon.notice wpa_supplicant[1647]: Successfully initialized wpa_supplicant
+Mon Sep 23 17:16:39 2024 [1727097399.060] user.notice : Added device handler type: bonding
+Mon Sep 23 17:16:39 2024 [1727097399.077] user.notice : Added device handler type: 8021ad
+Mon Sep 23 17:16:39 2024 [1727097399.077] user.notice : Added device handler type: 8021q
+Mon Sep 23 17:16:39 2024 [1727097399.077] user.notice : Added device handler type: macvlan
+Mon Sep 23 17:16:39 2024 [1727097399.077] user.notice : Added device handler type: veth
+Mon Sep 23 17:16:39 2024 [1727097399.078] user.notice : Added device handler type: bridge
+Mon Sep 23 17:16:39 2024 [1727097399.078] user.notice : Added device handler type: Network device
+Mon Sep 23 17:16:39 2024 [1727097399.078] user.notice : Added device handler type: tunnel
+Mon Sep 23 17:16:41 2024 [1727097401.022] cron.err crond[1888]: crond (busybox 1.36.1) started, log level 5
+Mon Sep 23 17:16:43 2024 [1727097403.168] daemon.info avahi-daemon[2060]: Found user 'nobody' (UID 65534) and group 'nogroup' (GID 65534).
+Mon Sep 23 17:16:43 2024 [1727097403.169] daemon.info avahi-daemon[2060]: Successfully dropped root privileges.
+Mon Sep 23 17:16:43 2024 [1727097403.173] daemon.info avahi-daemon[2060]: avahi-daemon 0.8 starting up.
+Mon Sep 23 17:16:43 2024 [1727097403.359] daemon.warn avahi-daemon[2060]: WARNING: No NSS support for mDNS detected, consider installing nss-mdns!
+Mon Sep 23 17:16:43 2024 [1727097403.398] daemon.info avahi-daemon[2060]: Loading service file /etc/avahi/services/smb.service.
+Mon Sep 23 17:16:43 2024 [1727097403.402] daemon.info avahi-daemon[2060]: Network interface enumeration completed.
+Mon Sep 23 17:16:43 2024 [1727097403.430] daemon.info avahi-daemon[2060]: Registering HINFO record with values 'MIPS'/'LINUX'.
+Mon Sep 23 17:16:43 2024 [1727097403.434] daemon.info avahi-daemon[2060]: Server startup complete. Host name is archer-uae.local. Local service cookie is 769456422.
+Mon Sep 23 17:16:43 2024 [1727097403.435] daemon.info avahi-daemon[2060]: Service "archer-uae" (/etc/avahi/services/smb.service) successfully established.
+Mon Sep 23 17:16:43 2024 [1727097403.815] user.notice ucitrack: Setting up /etc/config/dhcp reload dependency on /etc/config/network
+Mon Sep 23 17:16:43 2024 [1727097403.885] user.notice ucitrack: Setting up /etc/config/network reload dependency on /etc/config/wireless
+Mon Sep 23 17:16:44 2024 [1727097404.175] user.notice ucitrack: Setting up /etc/config/luci-splash reload dependency on /etc/config/firewall
+Mon Sep 23 17:16:44 2024 [1727097404.235] user.notice ucitrack: Setting up /etc/config/qos reload dependency on /etc/config/firewall
+Mon Sep 23 17:16:44 2024 [1727097404.312] user.notice ucitrack: Setting up /etc/config/miniupnpd reload dependency on /etc/config/firewall
+Mon Sep 23 17:16:44 2024 [1727097404.695] user.notice ucitrack: Setting up /etc/config/odhcpd reload dependency on /etc/config/dhcp
+Mon Sep 23 17:16:45 2024 [1727097405.264] user.notice ucitrack: Setting up non-init /etc/config/fstab reload handler: /sbin/block mount
+Mon Sep 23 17:16:45 2024 [1727097405.485] user.notice ucitrack: Setting up /etc/config/system reload trigger for non-procd /etc/init.d/led
+Mon Sep 23 17:16:45 2024 [1727097405.795] user.notice ucitrack: Setting up /etc/config/luci_statistics reload dependency on /etc/config/system
+Mon Sep 23 17:16:45 2024 [1727097405.856] user.notice ucitrack: Setting up /etc/config/dhcp reload dependency on /etc/config/system
+Mon Sep 23 17:16:47 2024 [1727097407.899] user.notice https-dns-proxy: Starting service instances on_boot ✓✓
+Mon Sep 23 17:16:47 2024 [1727097407.953] kern.info kernel: [   61.794727] eth0: link up (1000Mbps/Full duplex)
+Mon Sep 23 17:16:47 2024 [1727097407.985] kern.info kernel: [   61.809790] br-lan: port 1(eth0.1) entered blocking state
+Mon Sep 23 17:16:47 2024 [1727097407.985] kern.info kernel: [   61.815387] br-lan: port 1(eth0.1) entered disabled state
+Mon Sep 23 17:16:47 2024 [1727097407.985] kern.info kernel: [   61.821284] device eth0.1 entered promiscuous mode
+Mon Sep 23 17:16:47 2024 [1727097407.985] kern.info kernel: [   61.826245] device eth0 entered promiscuous mode
+Mon Sep 23 17:16:48 2024 [1727097408.010] kern.info kernel: [   61.846691] IPv6: ADDRCONF(NETDEV_CHANGE): eth0: link becomes ready
+Mon Sep 23 17:16:48 2024 [1727097408.064] kern.info kernel: [   61.899153] br-lan: port 1(eth0.1) entered blocking state
+Mon Sep 23 17:16:48 2024 [1727097408.065] kern.info kernel: [   61.904795] br-lan: port 1(eth0.1) entered forwarding state
+Mon Sep 23 17:16:48 2024 [1727097408.109] daemon.notice netifd: Interface 'lan' is enabled
+Mon Sep 23 17:16:48 2024 [1727097408.109] daemon.notice netifd: Interface 'lan' is setting up now
+Mon Sep 23 17:16:48 2024 [1727097408.113] daemon.info avahi-daemon[2060]: Joining mDNS multicast group on interface br-lan.IPv4 with address 192.168.50.10.
+Mon Sep 23 17:16:48 2024 [1727097408.113] daemon.info avahi-daemon[2060]: New relevant interface br-lan.IPv4 for mDNS.
+Mon Sep 23 17:16:48 2024 [1727097408.113] daemon.info avahi-daemon[2060]: Registering new address record for 192.168.50.10 on br-lan.IPv4.
+Mon Sep 23 17:16:48 2024 [1727097408.116] daemon.info avahi-daemon[2060]: Joining mDNS multicast group on interface br-lan.IPv6 with address fded:b9db:d4e3::1.
+Mon Sep 23 17:16:48 2024 [1727097408.116] daemon.info avahi-daemon[2060]: New relevant interface br-lan.IPv6 for mDNS.
+Mon Sep 23 17:16:48 2024 [1727097408.117] daemon.info avahi-daemon[2060]: Registering new address record for fded:b9db:d4e3::1 on br-lan.*.
+Mon Sep 23 17:16:48 2024 [1727097408.141] daemon.notice netifd: Interface 'lan' is now up
+Mon Sep 23 17:16:48 2024 [1727097408.143] daemon.notice netifd: bridge 'br-lan' link is up
+Mon Sep 23 17:16:48 2024 [1727097408.143] daemon.notice netifd: Interface 'lan' has link connectivity
+Mon Sep 23 17:16:48 2024 [1727097408.145] daemon.notice netifd: VLAN 'eth0.1' link is up
+Mon Sep 23 17:16:48 2024 [1727097408.147] daemon.notice netifd: Interface 'awg0' is setting up now
+Mon Sep 23 17:16:48 2024 [1727097408.155] daemon.info avahi-daemon[2060]: Joining mDNS multicast group on interface lo.IPv4 with address 127.0.0.1.
+Mon Sep 23 17:16:48 2024 [1727097408.155] daemon.info avahi-daemon[2060]: New relevant interface lo.IPv4 for mDNS.
+Mon Sep 23 17:16:48 2024 [1727097408.155] daemon.info avahi-daemon[2060]: Registering new address record for 127.0.0.1 on lo.IPv4.
+Mon Sep 23 17:16:48 2024 [1727097408.155] daemon.info avahi-daemon[2060]: Joining mDNS multicast group on interface lo.IPv6 with address ::1.
+Mon Sep 23 17:16:48 2024 [1727097408.155] daemon.info avahi-daemon[2060]: New relevant interface lo.IPv6 for mDNS.
+Mon Sep 23 17:16:48 2024 [1727097408.155] daemon.info avahi-daemon[2060]: Registering new address record for ::1 on lo.*.
+Mon Sep 23 17:16:48 2024 [1727097408.155] daemon.notice netifd: Interface 'loopback' is enabled
+Mon Sep 23 17:16:48 2024 [1727097408.156] daemon.notice netifd: Interface 'loopback' is setting up now
+Mon Sep 23 17:16:48 2024 [1727097408.210] user.notice https-dns-proxy: Updating dnsmasq config ✓
+Mon Sep 23 17:16:48 2024 [1727097408.211] daemon.notice netifd: Interface 'loopback' is now up
+Mon Sep 23 17:16:48 2024 [1727097408.219] daemon.notice netifd: Interface 'wan' is enabled
+Mon Sep 23 17:16:48 2024 [1727097408.220] daemon.notice netifd: Interface 'wg0' is setting up now
+Mon Sep 23 17:16:48 2024 [1727097408.293] daemon.notice netifd: bridge 'br-lan' link is down
+Mon Sep 23 17:16:48 2024 [1727097408.309] daemon.notice netifd: Interface 'lan' has link connectivity loss
+Mon Sep 23 17:16:48 2024 [1727097408.311] daemon.notice netifd: VLAN 'eth0.1' link is down
+Mon Sep 23 17:16:48 2024 [1727097408.312] daemon.notice netifd: VLAN 'eth0.1' link is up
+Mon Sep 23 17:16:48 2024 [1727097408.323] daemon.notice netifd: Network device 'eth0' link is up
+Mon Sep 23 17:16:48 2024 [1727097408.335] daemon.notice netifd: bridge 'br-lan' link is up
+Mon Sep 23 17:16:48 2024 [1727097408.398] daemon.notice netifd: Interface 'lan' has link connectivity
+Mon Sep 23 17:16:48 2024 [1727097408.399] daemon.notice netifd: Network device 'lo' link is up
+Mon Sep 23 17:16:48 2024 [1727097408.399] daemon.notice netifd: Interface 'loopback' has link connectivity
+Mon Sep 23 17:16:48 2024 [1727097408.422] daemon.notice netifd: VLAN 'eth0.2' link is up
+Mon Sep 23 17:16:48 2024 [1727097408.444] daemon.notice netifd: Interface 'wan' has link connectivity
+Mon Sep 23 17:16:48 2024 [1727097408.444] daemon.notice netifd: Interface 'wan' is setting up now
+Mon Sep 23 17:16:48 2024 [1727097408.993] kern.info kernel: [   62.829443] IPv6: ADDRCONF(NETDEV_CHANGE): br-lan: link becomes ready
+Mon Sep 23 17:16:49 2024 [1727097409.459] daemon.info avahi-daemon[2060]: Joining mDNS multicast group on interface eth0.2.IPv6 with address fe80::c2c9:e3ff:fe3b:7e19.
+Mon Sep 23 17:16:49 2024 [1727097409.459] daemon.info avahi-daemon[2060]: New relevant interface eth0.2.IPv6 for mDNS.
+Mon Sep 23 17:16:49 2024 [1727097409.459] daemon.info avahi-daemon[2060]: Registering new address record for fe80::c2c9:e3ff:fe3b:7e19 on eth0.2.*.
+Mon Sep 23 17:16:49 2024 [1727097409.474] daemon.notice netifd: wan (2520): udhcpc: started, v1.36.1
+Mon Sep 23 17:16:49 2024 [1727097409.534] daemon.info avahi-daemon[2060]: Joining mDNS multicast group on interface eth0.IPv6 with address fe80::c2c9:e3ff:fe3b:7e18.
+Mon Sep 23 17:16:49 2024 [1727097409.534] daemon.info avahi-daemon[2060]: New relevant interface eth0.IPv6 for mDNS.
+Mon Sep 23 17:16:49 2024 [1727097409.534] daemon.info avahi-daemon[2060]: Registering new address record for fe80::c2c9:e3ff:fe3b:7e18 on eth0.*.
+Mon Sep 23 17:16:49 2024 [1727097409.705] kern.info kernel: [   63.531116] amneziawg: WireGuard 1.0.0 (Amnezia VPN) loaded. See www.wireguard.com for information.
+Mon Sep 23 17:16:49 2024 [1727097409.705] kern.info kernel: [   63.540517] amneziawg: Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
+Mon Sep 23 17:16:49 2024 [1727097409.915] user.notice amneziawg: info: using kernel-space kmod-amneziawg for /usr/bin/awg
+Mon Sep 23 17:16:50 2024 [1727097410.095] daemon.notice netifd: wan (2520): udhcpc: broadcasting discover
+Mon Sep 23 17:16:50 2024 [1727097410.129] daemon.notice netifd: wan (2520): udhcpc: broadcasting select for 192.168.60.3, server 192.168.60.1
+Mon Sep 23 17:16:50 2024 [1727097410.207] daemon.notice netifd: radio1 (2426): WARNING: Variable 'data' does not exist or is not an array/object
+Mon Sep 23 17:16:50 2024 [1727097410.221] daemon.notice netifd: wan (2520): udhcpc: lease of 192.168.60.3 obtained from 192.168.60.1, lease time 86400
+Mon Sep 23 17:16:50 2024 [1727097410.247] daemon.notice netifd: radio0 (2425): WARNING: Variable 'data' does not exist or is not an array/object
+Mon Sep 23 17:16:50 2024 [1727097410.416] daemon.info dnsmasq[1]: exiting on receipt of SIGTERM
+Mon Sep 23 17:16:51 2024 [1727097411.180] daemon.notice netifd: Interface 'awg0' is now up
+Mon Sep 23 17:16:51 2024 [1727097411.191] daemon.notice netifd: Network device 'awg0' link is up
+Mon Sep 23 17:16:51 2024 [1727097411.311] daemon.info avahi-daemon[2060]: Joining mDNS multicast group on interface eth0.2.IPv4 with address 192.168.60.3.
+Mon Sep 23 17:16:51 2024 [1727097411.311] daemon.info avahi-daemon[2060]: New relevant interface eth0.2.IPv4 for mDNS.
+Mon Sep 23 17:16:51 2024 [1727097411.311] daemon.info avahi-daemon[2060]: Registering new address record for 192.168.60.3 on eth0.2.IPv4.
+Mon Sep 23 17:16:51 2024 [1727097411.312] daemon.notice netifd: Interface 'wan' is now up
+Mon Sep 23 17:16:51 2024 [1727097411.591] user.notice firewall: Reloading firewall due to ifup of lan (br-lan)
+Mon Sep 23 17:16:52 2024 [1727097412.447] daemon.notice hostapd: Set new config for phy phy1:
+Mon Sep 23 17:16:52 2024 [1727097412.484] daemon.notice hostapd: Set new config for phy phy0:
+Mon Sep 23 17:16:52 2024 [1727097412.508] daemon.notice wpa_supplicant[1647]: Set new config for phy phy1
+Mon Sep 23 17:16:52 2024 [1727097412.538] daemon.notice wpa_supplicant[1647]: Set new config for phy phy0
+Mon Sep 23 17:16:54 2024 [1727097414.652] daemon.notice wpa_supplicant[1647]: Set new config for phy phy1
+Mon Sep 23 17:16:54 2024 [1727097414.804] daemon.notice wpa_supplicant[1647]: Set new config for phy phy0
+Mon Sep 23 17:16:54 2024 [1727097414.874] daemon.notice hostapd: Set new config for phy phy1: /var/run/hostapd-phy1.conf
+Mon Sep 23 17:16:54 2024 [1727097414.878] daemon.notice hostapd: Restart interface for phy phy1
+Mon Sep 23 17:16:55 2024 [1727097415.147] daemon.notice hostapd: Configuration file: data: driver=nl80211 logger_syslog=127 logger_syslog_level=2 logger_stdout=127 logger_stdout_level=2 country_code=US ieee80211d=1 hw_mode=g beacon_int=100 chanlist=11 #num_global_macaddr=1 ieee80211n=1 ht_coex=0 ht_capab=[SHORT-GI-20][SHORT-GI-40][TX-STBC][RX-STBC1][DSSS_CCK-40] channel=11  interface=phy1-ap0 bssid=xx:xx:xx:xx:xx:18 ctrl_interface=/var/run/hostapd ap_isolate=1 bss_load_update_period=60 chan_util_avg_period=600 disassoc_low_ack=1 skip_inactivity_poll=0 preamble=1 wmm_enabled=1 ignore_broadcast_ssid=0 uapsd_advertisement_enabled=1 utf8_ssid=1 multi_ap=0 wpa_passphrase=MASKED wpa_psk_file=/var/run/hostapd-phy1-ap0.psk auth_algs=1 wpa=2 wpa_pairwise=CCMP ssid=MASKED bridge=br-lan wds_bridge= snoop_iface=br-lan wpa_disable_eapol_key_retries=0 wpa_key_mgmt=WPA-PSK okc=0 disable_pmksa_caching=1 dynamic_vlan=0 vlan_naming=1 vlan_no_bridge=1 vlan_file=/var/run/hostapd-phy1-ap0.vlan qos_map_set=0,0,2,16,1,1,255,255,18,22,24,38,40,40,44,46,48
+Mon Sep 23 17:16:55 2024 [1727097415.214] daemon.notice netifd: wg0 (2424): Try again: `MASKED:12345'. Trying again in 1.00 seconds...
+Mon Sep 23 17:16:55 2024 [1727097415.274] kern.info kernel: [   69.102455] br-lan: port 2(phy1-ap0) entered blocking state
+Mon Sep 23 17:16:55 2024 [1727097415.274] kern.info kernel: [   69.108282] br-lan: port 2(phy1-ap0) entered disabled state
+Mon Sep 23 17:16:55 2024 [1727097415.274] kern.info kernel: [   69.114405] device phy1-ap0 entered promiscuous mode
+Mon Sep 23 17:16:55 2024 [1727097415.297] daemon.notice hostapd: phy1-ap0: interface state UNINITIALIZED->COUNTRY_UPDATE
+Mon Sep 23 17:16:55 2024 [1727097415.494] kern.info kernel: [   69.320638] IPv6: ADDRCONF(NETDEV_CHANGE): phy1-ap0: link becomes ready
+Mon Sep 23 17:16:55 2024 [1727097415.494] kern.info kernel: [   69.327706] br-lan: port 2(phy1-ap0) entered blocking state
+Mon Sep 23 17:16:55 2024 [1727097415.494] kern.info kernel: [   69.333472] br-lan: port 2(phy1-ap0) entered forwarding state
+Mon Sep 23 17:16:55 2024 [1727097415.495] daemon.notice netifd: Network device 'phy1-ap0' link is up
+Mon Sep 23 17:16:55 2024 [1727097415.996] daemon.notice hostapd: phy1-ap0: interface state COUNTRY_UPDATE->ENABLED
+Mon Sep 23 17:16:55 2024 [1727097415.996] daemon.notice hostapd: phy1-ap0: AP-ENABLED
+Mon Sep 23 17:16:56 2024 [1727097416.043] daemon.notice hostapd: Set new config for phy phy0: /var/run/hostapd-phy0.conf
+Mon Sep 23 17:16:56 2024 [1727097416.049] daemon.notice hostapd: Restart interface for phy phy0
+Mon Sep 23 17:16:56 2024 [1727097416.306] daemon.notice hostapd: Configuration file: data: driver=nl80211 logger_syslog=127 logger_syslog_level=2 logger_stdout=127 logger_stdout_level=2 country_code=US ieee80211d=1 ieee80211h=1 hw_mode=a beacon_int=100 chanlist=36 tx_queue_data2_burst=2.0 #num_global_macaddr=1 ieee80211n=1 ht_coex=0 ht_capab=[HT40+][LDPC][SHORT-GI-20][SHORT-GI-40][TX-STBC][RX-STBC1][MAX-AMSDU-7935][DSSS_CCK-40] ieee80211ac=1 vht_oper_chwidth=1 vht_oper_centr_freq_seg0_idx=42 vht_capab=[RXLDPC][SHORT-GI-80][TX-STBC-2BY1][RX-ANTENNA-PATTERN][TX-ANTENNA-PATTERN][RX-STBC-1][MAX-MPDU-11454][MAX-A-MPDU-LEN-EXP7] channel=36  interface=phy0-ap0 bssid=xx:xx:xx:xx:xx:17 ctrl_interface=/var/run/hostapd ap_isolate=1 bss_load_update_period=60 chan_util_avg_period=600 disassoc_low_ack=1 skip_inactivity_poll=0 preamble=1 wmm_enabled=1 ignore_broadcast_ssid=0 uapsd_advertisement_enabled=1 utf8_ssid=1 multi_ap=0 wpa_passphrase=MASKED wpa_psk_file=/var/run/hostapd-phy0-ap0.psk auth_algs=1 wpa=2 wpa_pairwise=CCMP ssid=MASKED bridge=b
+Mon Sep 23 17:16:58 2024 [1727097418.227] kern.warn kernel: [   72.048722] ath10k_pci 0000:00:00.0: 10.1 wmi init: vdevs: 16  peers: 127  tid: 256
+Mon Sep 23 17:16:58 2024 [1727097418.227] kern.info kernel: [   72.066235] ath10k_pci 0000:00:00.0: wmi print 'P 128 V 8 T 410'
+Mon Sep 23 17:16:58 2024 [1727097418.243] kern.info kernel: [   72.073204] ath10k_pci 0000:00:00.0: wmi print 'msdu-desc: 1424  sw-crypt: 0 ct-sta: 0'
+Mon Sep 23 17:16:58 2024 [1727097418.243] kern.info kernel: [   72.081562] ath10k_pci 0000:00:00.0: wmi print 'alloc rem: 24984 iram: 38672'
+Mon Sep 23 17:16:58 2024 [1727097418.330] kern.warn kernel: [   72.164940] ath10k_pci 0000:00:00.0: pdev param 0 not supported by firmware
+Mon Sep 23 17:16:58 2024 [1727097418.380] kern.info kernel: [   72.218010] ath10k_pci 0000:00:00.0: rts threshold -1
+Mon Sep 23 17:16:58 2024 [1727097418.421] kern.info kernel: [   72.250348] br-lan: port 3(phy0-ap0) entered blocking state
+Mon Sep 23 17:16:58 2024 [1727097418.421] kern.info kernel: [   72.256126] br-lan: port 3(phy0-ap0) entered disabled state
+Mon Sep 23 17:16:58 2024 [1727097418.421] kern.info kernel: [   72.262246] device phy0-ap0 entered promiscuous mode
+Mon Sep 23 17:16:58 2024 [1727097418.428] daemon.notice hostapd: phy0-ap0: interface state UNINITIALIZED->COUNTRY_UPDATE
+Mon Sep 23 17:16:58 2024 [1727097418.443] daemon.notice hostapd: phy0-ap0: interface state COUNTRY_UPDATE->HT_SCAN
+Mon Sep 23 17:16:58 2024 [1727097418.619] daemon.info dnsmasq[1]: started, version 2.90 cachesize 150
+Mon Sep 23 17:16:58 2024 [1727097418.620] daemon.info dnsmasq[1]: DNS service limited to local subnets
+Mon Sep 23 17:16:58 2024 [1727097418.636] daemon.info dnsmasq[1]: compile time options: IPv6 GNU-getopt no-DBus UBus no-i18n no-IDN DHCP no-DHCPv6 no-Lua TFTP no-conntrack no-ipset no-nftset no-auth no-cryptohash no-DNSSEC no-ID loop-detect inotify dumpfile
+Mon Sep 23 17:16:58 2024 [1727097418.651] daemon.info dnsmasq[1]: UBus support enabled: connected to system bus
+Mon Sep 23 17:16:58 2024 [1727097418.651] daemon.info dnsmasq-dhcp[1]: DHCP, IP range 192.168.50.100 -- 192.168.50.249, lease time 12h
+Mon Sep 23 17:16:58 2024 [1727097418.652] daemon.info dnsmasq[1]: using nameserver 127.0.0.1#5054
+Mon Sep 23 17:16:58 2024 [1727097418.652] daemon.info dnsmasq[1]: using nameserver 127.0.0.1#5053
+Mon Sep 23 17:16:58 2024 [1727097418.653] daemon.info dnsmasq[1]: using only locally-known addresses for test
+Mon Sep 23 17:16:58 2024 [1727097418.653] daemon.info dnsmasq[1]: using only locally-known addresses for onion
+Mon Sep 23 17:16:58 2024 [1727097418.654] daemon.info dnsmasq[1]: using only locally-known addresses for localhost
+Mon Sep 23 17:16:58 2024 [1727097418.661] daemon.info dnsmasq[1]: using only locally-known addresses for local
+Mon Sep 23 17:16:58 2024 [1727097418.677] daemon.info dnsmasq[1]: using only locally-known addresses for invalid
+Mon Sep 23 17:16:58 2024 [1727097418.678] daemon.info dnsmasq[1]: using only locally-known addresses for bind
+Mon Sep 23 17:16:58 2024 [1727097418.678] daemon.info dnsmasq[1]: using only locally-known addresses for mask-h2.icloud.com
+Mon Sep 23 17:16:58 2024 [1727097418.678] daemon.info dnsmasq[1]: using only locally-known addresses for mask.icloud.com
+Mon Sep 23 17:16:58 2024 [1727097418.679] daemon.info dnsmasq[1]: using 2 more local addresses
+Mon Sep 23 17:16:58 2024 [1727097418.680] daemon.info dnsmasq[1]: read /etc/hosts - 12 names
+Mon Sep 23 17:16:58 2024 [1727097418.688] daemon.info dnsmasq[1]: read /tmp/hosts/dhcp.cfg01411c - 4 names
+Mon Sep 23 17:16:58 2024 [1727097418.688] daemon.info dnsmasq-dhcp[1]: read /etc/ethers - 0 addresses
+Mon Sep 23 17:16:58 2024 [1727097418.761] daemon.notice netifd: Wireless device 'radio1' is now up
+Mon Sep 23 17:16:58 2024 [1727097418.893] user.notice https-dns-proxy: Restarting dnsmasq on_config_update ✓
+Mon Sep 23 17:16:59 2024 [1727097419.235] user.notice https-dns-proxy: Setting service raw_trigger for 'interface.*.up'✓
+Mon Sep 23 17:16:59 2024 [1727097419.455] daemon.info avahi-daemon[2060]: Joining mDNS multicast group on interface phy1-ap0.IPv6 with address fe80::c2c9:e3ff:fe3b:7e18.
+Mon Sep 23 17:16:59 2024 [1727097419.455] daemon.info avahi-daemon[2060]: New relevant interface phy1-ap0.IPv6 for mDNS.
+Mon Sep 23 17:16:59 2024 [1727097419.455] daemon.info avahi-daemon[2060]: Registering new address record for fe80::c2c9:e3ff:fe3b:7e18 on phy1-ap0.*.
+Mon Sep 23 17:16:59 2024 [1727097419.494] daemon.notice netifd: Wireless device 'radio0' is now up
+Mon Sep 23 17:17:01 2024 [1727097421.220] daemon.notice netifd: wg0 (2424): Try again: `MASKED:12345'. Trying again in 1.20 seconds...
+Mon Sep 23 17:17:01 2024 [1727097421.868] kern.info kernel: [   75.693124] IPv6: ADDRCONF(NETDEV_CHANGE): phy0-ap0: link becomes ready
+Mon Sep 23 17:17:01 2024 [1727097421.868] kern.info kernel: [   75.700653] br-lan: port 3(phy0-ap0) entered blocking state
+Mon Sep 23 17:17:01 2024 [1727097421.868] kern.info kernel: [   75.706433] br-lan: port 3(phy0-ap0) entered forwarding state
+Mon Sep 23 17:17:01 2024 [1727097421.870] daemon.notice netifd: Network device 'phy0-ap0' link is up
+Mon Sep 23 17:17:01 2024 [1727097421.876] daemon.notice hostapd: phy0-ap0: interface state HT_SCAN->ENABLED
+Mon Sep 23 17:17:01 2024 [1727097421.886] daemon.notice hostapd: phy0-ap0: AP-ENABLED
+Mon Sep 23 17:17:03 2024 [1727097423.037] daemon.notice netifd: Interface 'wg0' is now up
+Mon Sep 23 17:17:03 2024 [1727097423.059] daemon.notice netifd: Network device 'wg0' link is up
+Mon Sep 23 17:17:03 2024 [1727097423.615] daemon.info avahi-daemon[2060]: Joining mDNS multicast group on interface phy0-ap0.IPv6 with address fe80::c2c9:e3ff:fe3b:7e17.
+Mon Sep 23 17:17:03 2024 [1727097423.615] daemon.info avahi-daemon[2060]: New relevant interface phy0-ap0.IPv6 for mDNS.
+Mon Sep 23 17:17:03 2024 [1727097423.615] daemon.info avahi-daemon[2060]: Registering new address record for fe80::c2c9:e3ff:fe3b:7e17 on phy0-ap0.*.
+Mon Sep 23 17:17:04 2024 [1727097424.406] daemon.notice procd: /etc/rc.d/S96led: setting up led WAN
+Mon Sep 23 17:17:04 2024 [1727097424.457] daemon.notice procd: /etc/rc.d/S96led: setting up led LAN1
+Mon Sep 23 17:17:04 2024 [1727097424.495] daemon.notice procd: /etc/rc.d/S96led: setting up led LAN2
+Mon Sep 23 17:17:04 2024 [1727097424.540] daemon.notice procd: /etc/rc.d/S96led: setting up led LAN3
+Mon Sep 23 17:17:04 2024 [1727097424.587] daemon.notice procd: /etc/rc.d/S96led: setting up led LAN4
+Mon Sep 23 17:17:04 2024 [1727097424.681] daemon.info hostapd: phy1-ap0: STA xx:xx:xx:xx:xx:c9 IEEE 802.11: authenticated
+Mon Sep 23 17:17:04 2024 [1727097424.687] daemon.info hostapd: phy1-ap0: STA xx:xx:xx:xx:xx:c9 IEEE 802.11: associated (aid 1)
+Mon Sep 23 17:17:04 2024 [1727097424.706] daemon.notice hostapd: phy1-ap0: AP-STA-CONNECTED xx:xx:xx:xx:xx:c9 auth_alg=open
+Mon Sep 23 17:17:04 2024 [1727097424.708] daemon.info hostapd: phy1-ap0: STA xx:xx:xx:xx:xx:c9 WPA: pairwise key handshake completed (RSN)
+Mon Sep 23 17:17:04 2024 [1727097424.709] daemon.notice hostapd: phy1-ap0: EAPOL-4WAY-HS-COMPLETED xx:xx:xx:xx:xx:c9
+Mon Sep 23 17:17:04 2024 [1727097424.754] daemon.info dnsmasq-dhcp[1]: DHCPREQUEST(br-lan) 192.168.50.210 xx:xx:xx:xx:xx:c9
+Mon Sep 23 17:17:04 2024 [1727097424.755] daemon.info dnsmasq-dhcp[1]: DHCPACK(br-lan) 192.168.50.210 xx:xx:xx:xx:xx:c9
+Mon Sep 23 17:17:05 2024 [1727097425.302] daemon.info ksmbd: Legacy Protocols allowed, don't use this option for secure environments!
+Mon Sep 23 17:17:05 2024 [1727097425.590] user.notice firewall: Reloading firewall due to ifup of wan (eth0.2)
+Mon Sep 23 17:17:05 2024 [1727097425.735] daemon.notice ksmbd: Stopping Ksmbd userspace service.
+Mon Sep 23 17:17:05 2024 [1727097425.925] daemon.notice ksmbd: Starting Ksmbd userspace service.
+Mon Sep 23 17:17:09 2024 [1727097429.036] user.notice https-dns-proxy: Starting service instances on_interface_up ✓✓
+Mon Sep 23 17:17:09 2024 [1727097429.063] daemon.err loki_exporter[3850]: started with BOOT=1
+Mon Sep 23 17:17:12 2024 [1727097432.100] daemon.info hostapd: phy0-ap0: STA xx:xx:xx:xx:xx:f0 IEEE 802.11: authenticated
+Mon Sep 23 17:17:12 2024 [1727097432.121] daemon.info hostapd: phy0-ap0: STA xx:xx:xx:xx:xx:f0 IEEE 802.11: associated (aid 1)
+Mon Sep 23 17:17:12 2024 [1727097432.162] daemon.notice hostapd: phy0-ap0: AP-STA-CONNECTED xx:xx:xx:xx:xx:f0 auth_alg=open
+Mon Sep 23 17:17:12 2024 [1727097432.163] daemon.info hostapd: phy0-ap0: STA xx:xx:xx:xx:xx:f0 WPA: pairwise key handshake completed (RSN)
+Mon Sep 23 17:17:12 2024 [1727097432.164] daemon.notice hostapd: phy0-ap0: EAPOL-4WAY-HS-COMPLETED xx:xx:xx:xx:xx:f0
+Mon Sep 23 17:17:13 2024 [1727097433.084] user.notice firewall: Reloading firewall due to ifup of wg0 (wg0)
+Mon Sep 23 17:17:15 2024 [1727097435.649] daemon.info hostapd: phy1-ap0: STA xx:xx:xx:xx:xx:a8 IEEE 802.11: authenticated
+Mon Sep 23 17:17:15 2024 [1727097435.655] daemon.info hostapd: phy1-ap0: STA xx:xx:xx:xx:xx:a8 IEEE 802.11: associated (aid 2)
+Mon Sep 23 17:17:15 2024 [1727097435.684] daemon.notice hostapd: phy1-ap0: AP-STA-CONNECTED xx:xx:xx:xx:xx:a8 auth_alg=open
+Mon Sep 23 17:17:15 2024 [1727097435.686] daemon.info hostapd: phy1-ap0: STA xx:xx:xx:xx:xx:a8 WPA: pairwise key handshake completed (RSN)
+Mon Sep 23 17:17:15 2024 [1727097435.691] daemon.notice hostapd: phy1-ap0: EAPOL-4WAY-HS-COMPLETED xx:xx:xx:xx:xx:a8
+Mon Sep 23 17:17:16 2024 [1727097436.014] daemon.info dnsmasq-dhcp[1]: DHCPDISCOVER(br-lan) xx:xx:xx:xx:xx:f0
+Mon Sep 23 17:17:16 2024 [1727097436.014] daemon.info dnsmasq-dhcp[1]: DHCPOFFER(br-lan) 192.168.50.139 xx:xx:xx:xx:xx:f0
+Mon Sep 23 17:17:16 2024 [1727097436.015] daemon.info dnsmasq-dhcp[1]: DHCPDISCOVER(br-lan) xx:xx:xx:xx:xx:f0
+Mon Sep 23 17:17:16 2024 [1727097436.017] daemon.info dnsmasq-dhcp[1]: DHCPOFFER(br-lan) 192.168.50.139 xx:xx:xx:xx:xx:f0
+Mon Sep 23 17:17:16 2024 [1727097436.018] daemon.info dnsmasq-dhcp[1]: DHCPREQUEST(br-lan) 192.168.50.241 xx:xx:xx:xx:xx:a8
+Mon Sep 23 17:17:16 2024 [1727097436.021] daemon.info dnsmasq-dhcp[1]: DHCPACK(br-lan) 192.168.50.241 xx:xx:xx:xx:xx:a8
+Mon Sep 23 17:17:17 2024 [1727097437.020] daemon.info dnsmasq-dhcp[1]: DHCPREQUEST(br-lan) 192.168.50.139 xx:xx:xx:xx:xx:f0
+Mon Sep 23 17:17:17 2024 [1727097437.027] daemon.info dnsmasq-dhcp[1]: DHCPACK(br-lan) 192.168.50.139 xx:xx:xx:xx:xx:f0
+Mon Sep 23 17:17:17 2024 [1727097437.163] daemon.info procd: - init complete -
+Mon Sep 23 17:18:12 2024 [1727097492.055] daemon.info dnsmasq-dhcp[1]: DHCPDISCOVER(br-lan) xx:xx:xx:xx:xx:67
+Mon Sep 23 17:18:12 2024 [1727097492.055] daemon.info dnsmasq-dhcp[1]: DHCPOFFER(br-lan) 192.168.50.11 xx:xx:xx:xx:xx:67
+Mon Sep 23 17:18:12 2024 [1727097492.071] daemon.info dnsmasq-dhcp[1]: DHCPREQUEST(br-lan) 192.168.50.11 xx:xx:xx:xx:xx:67
+Mon Sep 23 17:18:12 2024 [1727097492.071] daemon.info dnsmasq-dhcp[1]: DHCPACK(br-lan) 192.168.50.11 xx:xx:xx:xx:xx:67
+Mon Sep 23 17:18:13 2024 [1727097493.685] authpriv.info dropbear[4159]: Child connection from 192.168.50.139:62958
+Mon Sep 23 17:18:17 2024 [1727097497.186] authpriv.notice dropbear[4159]: Password auth succeeded for 'root' from 192.168.50.139:62958
+Mon Sep 23 17:18:33 2024 [1727097513.799] daemon.info hostapd: phy0-ap0: STA xx:xx:xx:xx:xx:eb IEEE 802.11: authenticated
+Mon Sep 23 17:18:33 2024 [1727097513.801] daemon.info hostapd: phy0-ap0: STA xx:xx:xx:xx:xx:eb IEEE 802.11: associated (aid 2)
+Mon Sep 23 17:18:33 2024 [1727097513.810] daemon.notice hostapd: phy0-ap0: AP-STA-CONNECTED xx:xx:xx:xx:xx:eb auth_alg=open
+Mon Sep 23 17:18:33 2024 [1727097513.811] daemon.info hostapd: phy0-ap0: STA xx:xx:xx:xx:xx:eb WPA: pairwise key handshake completed (RSN)
+Mon Sep 23 17:18:33 2024 [1727097513.813] daemon.notice hostapd: phy0-ap0: EAPOL-4WAY-HS-COMPLETED xx:xx:xx:xx:xx:eb
+Mon Sep 23 17:18:33 2024 [1727097513.923] daemon.info dnsmasq-dhcp[1]: DHCPREQUEST(br-lan) 192.168.50.204 xx:xx:xx:xx:xx:eb
+Mon Sep 23 17:18:33 2024 [1727097513.930] daemon.info dnsmasq-dhcp[1]: DHCPACK(br-lan) 192.168.50.204 xx:xx:xx:xx:xx:eb
+Mon Sep 23 17:18:37 2024 [1727097517.938] daemon.info hostapd: phy0-ap0: STA xx:xx:xx:xx:xx:d7 IEEE 802.11: authenticated
+Mon Sep 23 17:18:37 2024 [1727097517.947] daemon.info hostapd: phy0-ap0: STA xx:xx:xx:xx:xx:d7 IEEE 802.11: associated (aid 3)
+Mon Sep 23 17:18:37 2024 [1727097517.968] daemon.notice hostapd: phy0-ap0: AP-STA-CONNECTED xx:xx:xx:xx:xx:d7 auth_alg=open
+Mon Sep 23 17:18:37 2024 [1727097517.971] daemon.info hostapd: phy0-ap0: STA xx:xx:xx:xx:xx:d7 WPA: pairwise key handshake completed (RSN)
+Mon Sep 23 17:18:37 2024 [1727097517.971] daemon.notice hostapd: phy0-ap0: EAPOL-4WAY-HS-COMPLETED xx:xx:xx:xx:xx:d7
+Mon Sep 23 17:18:38 2024 [1727097518.113] daemon.info dnsmasq-dhcp[1]: DHCPREQUEST(br-lan) 192.168.50.116 xx:xx:xx:xx:xx:d7
+Mon Sep 23 17:18:38 2024 [1727097518.116] daemon.info dnsmasq-dhcp[1]: DHCPACK(br-lan) 192.168.50.116 xx:xx:xx:xx:xx:d7
+Mon Sep 23 17:18:57 2024 [1727097537.086] daemon.info hostapd: phy1-ap0: STA xx:xx:xx:xx:xx:75 IEEE 802.11: authenticated
+Mon Sep 23 17:18:57 2024 [1727097537.091] daemon.info hostapd: phy1-ap0: STA xx:xx:xx:xx:xx:75 IEEE 802.11: associated (aid 3)
+Mon Sep 23 17:18:57 2024 [1727097537.123] daemon.notice hostapd: phy1-ap0: AP-STA-CONNECTED xx:xx:xx:xx:xx:75 auth_alg=open
+Mon Sep 23 17:18:57 2024 [1727097537.125] daemon.info hostapd: phy1-ap0: STA xx:xx:xx:xx:xx:75 WPA: pairwise key handshake completed (RSN)
+Mon Sep 23 17:18:57 2024 [1727097537.126] daemon.notice hostapd: phy1-ap0: EAPOL-4WAY-HS-COMPLETED xx:xx:xx:xx:xx:75
+Mon Sep 23 17:18:57 2024 [1727097537.229] daemon.info dnsmasq-dhcp[1]: DHCPREQUEST(br-lan) 192.168.50.165 xx:xx:xx:xx:xx:75
+Mon Sep 23 17:18:57 2024 [1727097537.234] daemon.info dnsmasq-dhcp[1]: DHCPACK(br-lan) 192.168.50.165 xx:xx:xx:xx:xx:75
+Mon Sep 23 17:18:59 2024 [1727097539.101] daemon.info hostapd: phy1-ap0: STA xx:xx:xx:xx:xx:37 IEEE 802.11: authenticated
+Mon Sep 23 17:18:59 2024 [1727097539.110] daemon.info hostapd: phy1-ap0: STA xx:xx:xx:xx:xx:37 IEEE 802.11: associated (aid 4)
+Mon Sep 23 17:18:59 2024 [1727097539.158] daemon.notice hostapd: phy1-ap0: AP-STA-CONNECTED xx:xx:xx:xx:xx:37 auth_alg=open
+Mon Sep 23 17:18:59 2024 [1727097539.160] daemon.info hostapd: phy1-ap0: STA xx:xx:xx:xx:xx:37 WPA: pairwise key handshake completed (RSN)
+Mon Sep 23 17:18:59 2024 [1727097539.161] daemon.notice hostapd: phy1-ap0: EAPOL-4WAY-HS-COMPLETED xx:xx:xx:xx:xx:37
+Mon Sep 23 17:18:59 2024 [1727097539.271] daemon.info dnsmasq-dhcp[1]: DHCPREQUEST(br-lan) 192.168.50.150 xx:xx:xx:xx:xx:37
+Mon Sep 23 17:18:59 2024 [1727097539.271] daemon.info dnsmasq-dhcp[1]: DHCPACK(br-lan) 192.168.50.150 xx:xx:xx:xx:xx:37
+Mon Sep 23 17:19:01 2024 [1727097541.746] daemon.info hostapd: phy1-ap0: STA xx:xx:xx:xx:xx:8d IEEE 802.11: authenticated
+Mon Sep 23 17:19:01 2024 [1727097541.760] daemon.info hostapd: phy1-ap0: STA xx:xx:xx:xx:xx:8d IEEE 802.11: associated (aid 5)
+Mon Sep 23 17:19:01 2024 [1727097541.820] daemon.notice hostapd: phy1-ap0: AP-STA-CONNECTED xx:xx:xx:xx:xx:8d auth_alg=open
+Mon Sep 23 17:19:01 2024 [1727097541.821] daemon.info hostapd: phy1-ap0: STA xx:xx:xx:xx:xx:8d WPA: pairwise key handshake completed (RSN)
+Mon Sep 23 17:19:01 2024 [1727097541.822] daemon.notice hostapd: phy1-ap0: EAPOL-4WAY-HS-COMPLETED xx:xx:xx:xx:xx:8d
+Mon Sep 23 17:19:01 2024 [1727097541.955] daemon.info dnsmasq-dhcp[1]: DHCPREQUEST(br-lan) 192.168.50.211 xx:xx:xx:xx:xx:8d
+Mon Sep 23 17:19:01 2024 [1727097541.955] daemon.info dnsmasq-dhcp[1]: DHCPACK(br-lan) 192.168.50.211 xx:xx:xx:xx:xx:8d

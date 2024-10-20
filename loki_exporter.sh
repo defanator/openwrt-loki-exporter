@@ -1,4 +1,8 @@
 #!/bin/ash -u
+#
+# shellcheck shell=bash
+# ^^^ the above line is purely for shellcheck to treat this as a bash-like script
+# (OpenWRT's ash from busybox is kinda similar but there still could be issues)
 
 PIPE_NAME="/tmp/loki_exporter.pipe"
 BULK_DATA="/tmp/loki_exporter.boot"
@@ -110,7 +114,7 @@ _setup
 MIN_TIMESTAMP=0
 
 if [ ${BOOT} -eq 1 ]; then
-    ${LOGREAD} >${BULK_DATA}
+    ${LOGREAD} -t >${BULK_DATA}
     last_line="$(tail -1 ${BULK_DATA})"
     ts="${last_line:26:14}"
     ts_ms="${ts/./}"
