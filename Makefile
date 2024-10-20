@@ -29,7 +29,7 @@ show-var-%:
 show-env: $(addprefix show-var-, $(SHOW_ENV_VARS)) ## Show environment details
 
 .venv:
-	virtualenv .venv
+	python3 -m venv .venv
 	$(TOPDIR)/.venv/bin/python3 -m pip install -r $(TOPDIR)/requirements.txt
 
 venv: .venv ## Create virtualenv
