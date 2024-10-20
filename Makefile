@@ -84,6 +84,7 @@ run-test-exporter-onetime: create-test-env ## Run one-time cycle of mocking logr
 
 .PHONY: test
 test: run-test-exporter-onetime | .venv ## Run tests
+	sleep 5
 	$(TOPDIR)/.venv/bin/python3 -m pytest
 
 .PHONY: clean
