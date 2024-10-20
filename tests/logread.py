@@ -105,7 +105,7 @@ class MockLogRead:
         Load lines from pre-seeded log file
         """
         with open(self.args.log_file, "r", encoding="utf-8") as file:
-            self.lines = file.readlines()
+            self.lines = [line.rstrip() for line in file.readlines()]
 
         ts_orig = self.get_ts_existing(self.lines[0])
         ts_constructed = self.construct_ts_from_line(self.lines[0])
@@ -134,7 +134,7 @@ class MockLogRead:
         else:
             new_line = f"{datetime_str} {msg}"
 
-        print(new_line, end="", flush=True)
+        print(new_line, flush=True)
 
     def print_starting_lines(self, delay=0.0):
         """
@@ -171,11 +171,11 @@ class MockLogRead:
             datetime_str = self.datetime_str_from_ts(ts)
 
             if self.args.extra_timestamp:
-                line = f"{datetime_str} [{ts:.03f}] {msg}"
+                line = f"{datetime_str} [{ts:.03f}] {msg} (MOCK)"
             else:
-                line = f"{datetime_str} {msg}"
+                line = f"{datetime_str} {msg} (MOCK)"
 
-            print(line, end="", flush=True)
+            print(line, flush=True)
 
             if max_cycles != 0 and n == max_cycles:
                 break
