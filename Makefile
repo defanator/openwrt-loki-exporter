@@ -3,8 +3,30 @@
 TOPDIR := $(realpath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 SELF := $(abspath $(lastword $(MAKEFILE_LIST)))
 
+GITHUB_RUN_ID ?= 0
+
+DATE := $(shell date +"%Y%m%d")
+VERSION := $(shell git describe --tags --always --match='v[0-9]*' | cut -d '-' -f 1 | tr -d 'v')
+RELEASE := $(shell git describe --tags --always --match='v[0-9]*' --long | cut -d '-' -f 2)
+BUILD := $(shell git describe --tags --long --always --dirty)-$(DATE)-$(GITHUB_RUN_ID)
+
+SHOW_ENV_VARS = \
+	VERSION \
+	RELEASE \
+	GITHUB_RUN_ID \
+	BUILD
+
 help: ## Show help message (list targets)
 	@awk 'BEGIN {FS = ":.*##"; printf "\nTargets:\n"} /^[$$()% 0-9a-zA-Z_-]+:.*?##/ {printf "  \033[36m%-25s\033[0m %s\n", $$1, $$2}' $(SELF)
+
+show-var-%:
+	@{ \
+	escaped_v="$(subst ",\",$($*))" ; \
+	if [ -n "$$escaped_v" ]; then v="$$escaped_v"; else v="(undefined)"; fi; \
+	printf "%-13s %s\n" "$*" "$$v"; \
+	}
+
+show-env: $(addprefix show-var-, $(SHOW_ENV_VARS)) ## Show environment details
 
 .venv:
 	virtualenv .venv
