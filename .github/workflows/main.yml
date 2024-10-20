@@ -36,3 +36,13 @@ jobs:
       - name: Compare logs
         if: ${{ always() }}
         run: make compare-logs
+      - name: Save container logs
+        if: ${{ always() }}
+        run: make save-logs
+      - name: Save CI artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: results
+          path: results/**
+          retention-days: 7

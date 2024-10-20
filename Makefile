@@ -28,6 +28,9 @@ show-var-%:
 
 show-env: $(addprefix show-var-, $(SHOW_ENV_VARS)) ## Show environment details
 
+results:
+	mkdir -p results
+
 .venv:
 	python3 -m venv .venv
 	$(TOPDIR)/.venv/bin/python3 -m pip install -r $(TOPDIR)/requirements.txt
@@ -106,15 +109,19 @@ run-test-exporter-onetime: create-test-env ## Run one-time cycle of mocking logr
 	touch $@
 
 .PHONY: test
-test: run-test-exporter-onetime | .venv ## Run tests
+test: run-test-exporter-onetime | .venv results ## Run tests
 	$(TOPDIR)/.venv/bin/python3 -m pytest
 
 .PHONY: compare-logs
-compare-logs:
-	cat tests/resurrected.log | cut -c 17- | sort >_resurrected
-	cat tests/default.log | cut -c 43- | sort >_original
-	wc -l _original _resurrected
-	diff -u _original _resurrected
+compare-logs: | results
+	cat tests/default.log | cut -c 43- | sort >results/messages.original
+	cat results/resurrected.log | cut -c 17- | sort >results/messages.resurrected
+	wc -l results/messages.original results/messages.resurrected
+	diff -u results/messages.original results/messages.resurrected
+
+.PHONY: save-logs
+save-logs: | results
+	docker logs tests-loki-1 >results/loki.log 2>&1
 
 .PHONY: clean
 clean: delete-test-env ## Clean-up
