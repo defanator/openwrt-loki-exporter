@@ -23,16 +23,16 @@ jobs:
       - name: Create virtualenv
         run: make venv
       - name: Run formatters
-        if: ${{ always }}
+        if: ${{ always() }}
         run: |
           make fmt
           git diff
       - name: Run linters
-        if: ${{ always }}
+        if: ${{ always() }}
         run: make lint
       - name: Run tests
-        if: ${{ always }}
+        if: ${{ always() }}
         run: make test
       - name: Compare logs
-        if: ${{ always }}
+        if: ${{ always() }}
         run: make compare-logs
