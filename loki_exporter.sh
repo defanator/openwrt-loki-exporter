@@ -56,6 +56,9 @@ _do_bulk_post() {
     rm -f ${BULK_DATA}
 
     if curl -fs -X POST -H "Content-Type: application/json" -H "Content-Encoding: gzip" -H "Authorization: Basic ${LOKI_AUTH_HEADER}" --data-binary "@${BULK_DATA}.payload.gz" "${LOKI_PUSH_URL}"; then
+        mkdir -p results
+        # TODO: remove below debugging
+        cp ${BULK_DATA}.payload.gz results/
         rm -f ${BULK_DATA}.payload.gz
     else
         echo "BULK POST FAILED: leaving ${BULK_DATA}.payload.gz for now"
@@ -89,7 +92,7 @@ _main_loop() {
         fi
 
         if [ "${MIN_TIMESTAMP}" -gt 0 ]; then
-            if [ "${ts_ns}" -le "${MIN_TIMESTAMP}" ]; then
+            if [ "${ts_ns}" -lt "${MIN_TIMESTAMP}" ]; then # TODO: switch back to -le?
                 continue
             fi
         fi
