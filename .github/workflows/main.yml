@@ -10,7 +10,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,12 +23,16 @@ jobs:
       - name: Create virtualenv
         run: make venv
       - name: Run formatters
+        if: ${{ always }}
         run: |
           make fmt
           git diff
       - name: Run linters
+        if: ${{ always }}
         run: make lint
       - name: Run tests
+        if: ${{ always }}
         run: make test
       - name: Compare logs
+        if: ${{ always }}
         run: make compare-logs
