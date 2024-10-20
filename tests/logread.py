@@ -111,7 +111,16 @@ class MockLogRead:
         ts_constructed = self.construct_ts_from_line(self.lines[0])
         self.ts_first_line = max(ts_orig, ts_constructed)
 
-        self.ts_start_from = datetime.now() - timedelta(hours=1)
+        self.state_file = self.args.log_file + ".state"
+
+        if os.path.isfile(self.state_file):
+            with open(self.state_file, "r", encoding="utf-8") as file:
+                self.ts_start_from = datetime.fromtimestamp(float(file.readline()))
+        else:
+            self.ts_start_from = datetime.now() - timedelta(hours=1)
+            with open(self.state_file, "w", encoding="utf-8") as file:
+                file.write(f"{self.ts_start_from.timestamp()}\n")
+
         self.ts_apply_delta = self.ts_start_from.timestamp() - self.ts_first_line
 
     def print_line(self, line: str):

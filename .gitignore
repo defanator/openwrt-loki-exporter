@@ -5,3 +5,4 @@ __pycache__
 *.pyo
 create-test-env
 run-test-exporter-onetime
+tests/*.log.state

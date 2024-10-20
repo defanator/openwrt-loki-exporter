@@ -99,3 +99,4 @@ clean: delete-test-env ## Clean-up
 	find $(TOPDIR)/ -type f -name "*.pyo" -delete
 	find $(TOPDIR)/ -type d -name "__pycache__" -delete
 	rm -f $(TOPDIR)/run-test-exporter-onetime
+	find $(TOPDIR)/tests/ -type f -name "*.log.state" -delete

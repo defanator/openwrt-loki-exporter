@@ -74,7 +74,7 @@ def test_line_count():
         for entry in l:
             file.write(f"{entry['ts']:.3f}: {entry['msg']}\n")
 
-    assert total_entries == 491
+    assert total_entries == 485
 
     assert "stats" in data.keys()
     stats = data.get("stats")
@@ -82,5 +82,5 @@ def test_line_count():
 
     assert "summary" in stats.keys()
     assert (
-        stats.get("summary", {}).get("totalLinesProcessed") == 491
+        stats.get("summary", {}).get("totalLinesProcessed") == 485
     ), "count of total processed lines"
