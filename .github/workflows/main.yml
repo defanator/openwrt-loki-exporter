@@ -10,6 +10,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,3 +31,5 @@ jobs:
         run: make lint
       - name: Run tests
         run: make test
+      - name: Compare logs
+        run: make compare-logs

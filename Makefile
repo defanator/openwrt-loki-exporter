@@ -86,6 +86,13 @@ run-test-exporter-onetime: create-test-env ## Run one-time cycle of mocking logr
 test: run-test-exporter-onetime | .venv ## Run tests
 	$(TOPDIR)/.venv/bin/python3 -m pytest
 
+.PHONY: compare-logs
+compare-logs:
+	cat tests/resurrected.log | cut -c 17- | sort >_resurrected
+	cat tests/default.log | cut -c 43- | sort >_original
+	wc -l _original _resurrected
+	diff -u _original _resurrected
+
 .PHONY: clean
 clean: delete-test-env ## Clean-up
 	find $(TOPDIR)/ -type f -name "*.pyc" -delete
