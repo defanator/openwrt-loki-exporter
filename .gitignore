@@ -1,7 +1,9 @@
 .venv
 attic/
+results/
 __pycache__
 *.pyc
 *.pyo
 create-test-env
 run-test-exporter-onetime
+tests/*.log.state

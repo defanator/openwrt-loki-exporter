@@ -41,7 +41,7 @@ _do_bulk_post() {
             continue
         fi
 
-        msg="${line:42:1000}"
+        msg="${line:42:2000}"
         msg="${msg//\"/\\\"}"
 
         msg_payload="${LOKI_BULK_TEMPLATE_MSG}"
@@ -56,6 +56,10 @@ _do_bulk_post() {
     rm -f ${BULK_DATA}
 
     if curl -fs -X POST -H "Content-Type: application/json" -H "Content-Encoding: gzip" -H "Authorization: Basic ${LOKI_AUTH_HEADER}" --data-binary "@${BULK_DATA}.payload.gz" "${LOKI_PUSH_URL}"; then
+        if [ "${AUTOTEST}" -eq 1 ]; then
+            mkdir -p results
+            cp ${BULK_DATA}.payload.gz results/
+        fi
         rm -f ${BULK_DATA}.payload.gz
     else
         echo "BULK POST FAILED: leaving ${BULK_DATA}.payload.gz for now"
@@ -94,7 +98,7 @@ _main_loop() {
             fi
         fi
 
-        msg="${line:42:1000}"
+        msg="${line:42:2000}"
         msg="${msg//\"/\\\"}"
 
         post_body="${LOKI_MSG_TEMPLATE}"
@@ -113,7 +117,7 @@ _setup
 
 MIN_TIMESTAMP=0
 
-if [ ${BOOT} -eq 1 ]; then
+if [ "${BOOT}" -eq 1 ]; then
     ${LOGREAD} -t >${BULK_DATA}
     last_line="$(tail -1 ${BULK_DATA})"
     ts="${last_line:26:14}"
@@ -132,7 +136,7 @@ fi
 
 trap "_teardown" SIGINT SIGTERM EXIT
 
-if [ ${BOOT} -eq 1 ]; then
+if [ "${BOOT}" -eq 1 ]; then
     EXTRA_ENTRIES=0
 else
     EXTRA_ENTRIES=1
