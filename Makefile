@@ -129,6 +129,7 @@ clean: delete-test-env ## Clean-up
 	find $(TOPDIR)/ -type f -name "*.pyc" -delete
 	find $(TOPDIR)/ -type f -name "*.pyo" -delete
 	find $(TOPDIR)/ -type d -name "__pycache__" -delete
+	rm -rf $(TOPDIR)/.pytest_cache
 	rm -f $(TOPDIR)/run-test-exporter-onetime
 	find $(TOPDIR)/tests/ -type f -name "*.log.state" -delete
 	rm -rf $(TOPDIR)/results
