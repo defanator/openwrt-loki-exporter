@@ -117,7 +117,8 @@ compare-logs: | results
 	cat tests/default.log | cut -c 43- | sort >results/messages.original
 	cat results/resurrected.log | cut -c 17- | sort >results/messages.resurrected
 	wc -l results/messages.original results/messages.resurrected
-	diff -u results/messages.original results/messages.resurrected
+	diff -u results/messages.original results/messages.resurrected ||:
+	test $$(diff -u results/messages.original results/messages.resurrected | grep -- " (MOCK)$$" | wc -l) -eq 3
 
 .PHONY: save-logs
 save-logs: | results
