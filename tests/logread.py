@@ -100,6 +100,38 @@ class MockLogRead:
             return line[42:]
         return line[25:]
 
+    def get_adjusted_ts(self, line: str, extra_delta=0.0) -> float:
+        """
+        Get adjusted timestamp from log line
+
+        The goal of this function is to try to obtain both possible
+        timestamps from original log line (low-precision one from datetime
+        string and high-precision one from extra float field if available),
+        compare these to each other, adjust for timezone shift, and add
+        an extra delta if needed.
+        """
+        ts_orig = self.get_ts_existing(line)
+        ts_constructed = self.construct_ts_from_line(line)
+
+        if ts_orig < 0 and ts_constructed < 0:
+            raise ValueError(f'invalid log line: "{line}"')
+
+        # high-precision timestamp is not present
+        if ts_orig < 0:
+            return ts_constructed + extra_delta
+
+        # high-precision timestamp is present, line TZ matches to runtime TZ
+        abs_delta = abs(ts_orig - ts_constructed)
+        if abs_delta < 1.0:
+            return max(ts_orig, ts_constructed) + extra_delta
+
+        # high-precision timestamp is present, line TZ does not match runtime TZ
+        rounded_delta = int(round(abs_delta, -1))
+        if ts_orig > ts_constructed:
+            return ts_orig - rounded_delta + extra_delta
+
+        return ts_orig + rounded_delta + extra_delta
+
     def load_lines(self):
         """
         Load lines from pre-seeded log file
@@ -107,18 +139,15 @@ class MockLogRead:
         with open(self.args.log_file, "r", encoding="utf-8") as file:
             self.lines = [line.rstrip() for line in file.readlines()]
 
-        ts_orig = self.get_ts_existing(self.lines[0])
-        ts_constructed = self.construct_ts_from_line(self.lines[0])
-        self.ts_first_line = max(ts_orig, ts_constructed)
+        self.ts_first_line = self.get_adjusted_ts(self.lines[0])
+        state_file = self.args.log_file + ".state"
 
-        self.state_file = self.args.log_file + ".state"
-
-        if os.path.isfile(self.state_file):
-            with open(self.state_file, "r", encoding="utf-8") as file:
+        if os.path.isfile(state_file):
+            with open(state_file, "r", encoding="utf-8") as file:
                 self.ts_start_from = datetime.fromtimestamp(float(file.readline()))
         else:
             self.ts_start_from = datetime.now() - timedelta(hours=1)
-            with open(self.state_file, "w", encoding="utf-8") as file:
+            with open(state_file, "w", encoding="utf-8") as file:
                 file.write(f"{self.ts_start_from.timestamp()}\n")
 
         self.ts_apply_delta = self.ts_start_from.timestamp() - self.ts_first_line
@@ -127,19 +156,13 @@ class MockLogRead:
         """
         Print single log line
         """
-        ts_existing = self.get_ts_existing(line)
-        ts_constructed = self.construct_ts_from_line(line)
-
-        if ts_existing < 0 and ts_constructed < 0:
-            raise ValueError(f'invalid log line: "{line}"')
-
         msg = self.get_msg_from_line(line)
 
-        ts_preferred = max(ts_existing, ts_constructed) + self.ts_apply_delta
-        datetime_str = self.datetime_str_from_ts(ts_preferred)
+        ts_adjusted = self.get_adjusted_ts(line, self.ts_apply_delta)
+        datetime_str = self.datetime_str_from_ts(ts_adjusted)
 
         if self.args.extra_timestamp:
-            new_line = f"{datetime_str} [{ts_preferred:.03f}] {msg}"
+            new_line = f"{datetime_str} [{ts_adjusted:.03f}] {msg}"
         else:
             new_line = f"{datetime_str} {msg}"
 

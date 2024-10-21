@@ -55,10 +55,9 @@ def test_line_count():
     assert "result" in data.keys()
     result = data.get("result")
     assert isinstance(result, list)
-    # assert len(result) == 1
+    assert len(result) == 1
 
     l = []
-
     total_entries = 0
     for h in result:
         for k, v in h.items():
