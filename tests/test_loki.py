@@ -36,14 +36,14 @@ def test_line_count():
 
     # assert flush(BASE_URL) is True, "flush succeeded"
 
-    query = '{job="openwrt_loki_exporter"}'
     current_time = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     start_time = (datetime.now(timezone.utc) - timedelta(hours=2)).strftime(
         "%Y-%m-%dT%H:%M:%SZ"
     )
-    end_time = current_time
 
-    response = query_range(BASE_URL, query, start_time, end_time, limit=1000)
+    response = query_range(
+        BASE_URL, '{job="openwrt_loki_exporter"}', start_time, current_time, limit=1000
+    )
 
     assert "status" in response.keys()
     assert response.get("status") == "success"

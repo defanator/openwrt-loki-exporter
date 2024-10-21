@@ -117,7 +117,7 @@ _setup
 
 MIN_TIMESTAMP=0
 
-if [ ${BOOT} -eq 1 ]; then
+if [ "${BOOT}" -eq 1 ]; then
     ${LOGREAD} -t >${BULK_DATA}
     last_line="$(tail -1 ${BULK_DATA})"
     ts="${last_line:26:14}"
@@ -136,7 +136,7 @@ fi
 
 trap "_teardown" SIGINT SIGTERM EXIT
 
-if [ ${BOOT} -eq 1 ]; then
+if [ "${BOOT}" -eq 1 ]; then
     EXTRA_ENTRIES=0
 else
     EXTRA_ENTRIES=1
