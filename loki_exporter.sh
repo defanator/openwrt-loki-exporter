@@ -41,7 +41,7 @@ _do_bulk_post() {
             continue
         fi
 
-        msg="${line:42:1000}"
+        msg="${line:42:2000}"
         msg="${msg//\"/\\\"}"
 
         msg_payload="${LOKI_BULK_TEMPLATE_MSG}"
@@ -98,7 +98,7 @@ _main_loop() {
             fi
         fi
 
-        msg="${line:42:1000}"
+        msg="${line:42:2000}"
         msg="${msg//\"/\\\"}"
 
         post_body="${LOKI_MSG_TEMPLATE}"
