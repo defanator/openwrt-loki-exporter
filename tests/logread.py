@@ -15,6 +15,8 @@ class MockLogRead:
     Base class for mocking logread
     """
 
+    DATETIME_STR_FORMAT = "%a %b %d %H:%M:%S %Y"
+
     def __init__(self):
         self.lines = []
         self.args = None
@@ -78,7 +80,7 @@ class MockLogRead:
         """
         try:
             datetime_str = line[0:24]
-            dt = datetime.strptime(datetime_str, "%a %b %d %H:%M:%S %Y")
+            dt = datetime.strptime(datetime_str, MockLogRead.DATETIME_STR_FORMAT)
             return dt.timestamp() * 1.0
         except ValueError:
             return -float("inf")
@@ -89,7 +91,7 @@ class MockLogRead:
         Construct datetime string from timestamp
         """
         dt = datetime.fromtimestamp(int(ts))
-        return dt.strftime("%a %b %d %H:%M:%S %Y")
+        return dt.strftime(MockLogRead.DATETIME_STR_FORMAT)
 
     @staticmethod
     def get_msg_from_line(line: str) -> str:
