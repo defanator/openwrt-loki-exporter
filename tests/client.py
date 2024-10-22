@@ -9,6 +9,33 @@ import requests
 BASE_URL = "http://127.0.0.1:3100"
 
 
+def flush(base_url):
+    """
+    Flush in-memory chunks to backing store
+
+    https://grafana.com/docs/loki/latest/reference/loki-http-api/#flush-in-memory-chunks-to-backing-store
+    """
+    headers = {
+        "Accept": "application/json",
+        "X-Scope-OrgID": "1",
+    }
+
+    try:
+        response = requests.get(
+            f"{base_url}/flush",
+            headers=headers,
+            timeout=3,
+        )
+        if response.status_code != 204:
+            return False
+
+        return True
+
+    except requests.exceptions.RequestException as exc:
+        print(f"ERROR querying {base_url}/flush: {exc}")
+        return None
+
+
 def query_labels(base_url):
     """
     Obtain a list of available labels

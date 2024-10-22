@@ -1,0 +1,47 @@
+name: ci
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Show environment
+        run: make show-env
+      - name: Create virtualenv
+        run: make venv
+      - name: Run formatters
+        if: ${{ always() }}
+        run: |
+          make fmt
+          git diff
+      - name: Run linters
+        if: ${{ always() }}
+        run: make lint
+      - name: Run tests
+        if: ${{ always() }}
+        run: make test
+      - name: Compare logs
+        if: ${{ always() }}
+        run: make compare-logs
+      - name: Save container logs
+        if: ${{ always() }}
+        run: make save-logs
+      - name: Save CI artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: results
+          path: results/**
+          retention-days: 7
