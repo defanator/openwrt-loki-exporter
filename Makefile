@@ -6,7 +6,7 @@ UPPERDIR := $(realpath $(TOPDIR)/../)
 
 OPENWRT_SRCDIR   ?= $(UPPERDIR)/openwrt
 LOKI_EXPORTER_SRCDIR ?= $(TOPDIR)
-LOKI_EXPORTER_DSTDIR ?= $(UPPERDIR)/loki_exporter_release
+LOKI_EXPORTER_DSTDIR ?= $(UPPERDIR)/loki_exporter_artifacts
 
 OPENWRT_RELEASE   ?= 23.05.3
 OPENWRT_ARCH      ?= mips_24kc
@@ -229,6 +229,15 @@ package: loki-exporter ## Build OpenWRT package
         make V=s package/loki-exporter/download ; \
         make V=s package/loki-exporter/prepare ; \
         make V=s package/loki-exporter/compile ; \
+        }
+
+.PHONY: prepare-artifacts
+prepare-artifacts: ## Save loki-exporter artifacts (.ipk packages)
+	@{ \
+        set -ex ; \
+        cd $(OPENWRT_SRCDIR) ; \
+        mkdir -p $(LOKI_EXPORTER_DSTDIR) ; \
+        cp bin/packages/$(OPENWRT_ARCH)/loki_exporter/loki-exporter_*.ipk $(LOKI_EXPORTER_DSTDIR)/ ; \
         }
 
 .PHONY: clean
