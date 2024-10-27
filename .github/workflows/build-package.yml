@@ -30,6 +30,13 @@ on:
         required: true
         default: "auto"
 
+env:
+  OPENWRT_VERSION: ${{ inputs.openwrt_version || '23.05.3' }}
+  OPENWRT_ARCH: ${{ inputs.openwrt_arch || 'mips_24kc' }}
+  OPENWRT_TARGET: ${{ inputs.openwrt_target || 'ath79' }}
+  OPENWRT_SUBTARGET: ${{ inputs.openwrt_target || 'generic' }}
+  OPENWRT_VERMAGIC: ${{ inputs.openwrt_target || 'auto' }}
+
 jobs:
   build:
     name: "v${{ matrix.build_env.tag }} - ${{ matrix.build_env.pkgarch }} :: ${{ matrix.build_env.target }}/${{ matrix.build_env.subtarget }} openwrt build"
@@ -37,11 +44,11 @@ jobs:
     strategy:
       matrix:
         build_env:
-          - tag: ${{ inputs.openwrt_version }}
-            pkgarch: ${{ inputs.openwrt_arch }}
-            target: ${{ inputs.openwrt_target }}
-            subtarget: ${{ inputs.openwrt_subtarget }}
-            vermagic: ${{ inputs.openwrt_vermagic }}
+          - tag: ${{ env.OPENWRT_VERSION }}
+            pkgarch: ${{ env.OPENWRT_ARCH }}
+            target: ${{ env.OPENWRT_TARGET }}
+            subtarget: ${{ env.OPENWRT_SUBTARGET }}
+            vermagic: ${{ env.OPENWRT_VERMAGIC }}
 
     env:
       OPENWRT_RELEASE: ${{ matrix.build_env.tag }}
