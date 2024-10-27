@@ -1,0 +1,46 @@
+include $(TOPDIR)/rules.mk
+
+PKG_NAME:=loki-exporter
+PKG_VERSION:=1.0.0
+PKG_RELEASE:=1
+PKG_LICENSE:=MIT
+PKG_MAINTAINER:=Andrei Belov <defanator@gmail.com>
+
+include $(INCLUDE_DIR)/package.mk
+
+define Package/loki-exporter
+  SECTION:=net
+  CATEGORY:=Network
+  TITLE:=loki-exporter
+  DEPENDS:=+curl
+  PKGARCH:=all
+  URL:=https://github.com/defanator/openwrt-loki-exporter
+endef
+
+define Package/loki-exporter/description
+Tiny service for exporting system log to remote Loki instance,
+written in pure shell.
+
+endef
+
+define Build/Prepare
+endef
+
+define Build/Configure
+endef
+
+define Build/Compile
+endef
+
+define Package/loki-exporter/install
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) ./files/loki_exporter.sh $(1)/usr/bin/loki_exporter
+
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/loki_exporter.init $(1)/etc/init.d/loki_exporter
+
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_CONF) ./files/loki_exporter.conf $(1)/etc/config/loki_exporter
+endef
+
+$(eval $(call BuildPackage,loki-exporter))

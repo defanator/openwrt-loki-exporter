@@ -7,3 +7,4 @@ __pycache__
 create-test-env
 run-test-exporter-onetime
 tests/*.log.state
+loki-exporter/

@@ -2,8 +2,36 @@
 
 TOPDIR := $(realpath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 SELF := $(abspath $(lastword $(MAKEFILE_LIST)))
+UPPERDIR := $(realpath $(TOPDIR)/../)
+
+OPENWRT_SRCDIR   ?= $(UPPERDIR)/openwrt
+LOKI_EXPORTER_SRCDIR ?= $(TOPDIR)
+LOKI_EXPORTER_DSTDIR ?= $(UPPERDIR)/loki_exporter_release
+
+OPENWRT_RELEASE   ?= 23.05.3
+OPENWRT_ARCH      ?= mips_24kc
+OPENWRT_TARGET    ?= ath79
+OPENWRT_SUBTARGET ?= generic
+OPENWRT_VERMAGIC  ?= auto
+
+OPENWRT_ROOT_URL  ?= https://downloads.openwrt.org/releases
+OPENWRT_BASE_URL  ?= $(OPENWRT_ROOT_URL)/$(OPENWRT_RELEASE)/targets/$(OPENWRT_TARGET)/$(OPENWRT_SUBTARGET)
+OPENWRT_MANIFEST  ?= $(OPENWRT_BASE_URL)/openwrt-$(OPENWRT_RELEASE)-$(OPENWRT_TARGET)-$(OPENWRT_SUBTARGET).manifest
+
+ifndef OPENWRT_VERMAGIC
+_NEED_VERMAGIC=1
+endif
+
+ifeq ($(OPENWRT_VERMAGIC), auto)
+_NEED_VERMAGIC=1
+endif
+
+ifeq ($(_NEED_VERMAGIC), 1)
+OPENWRT_VERMAGIC := $(shell curl -fs $(OPENWRT_MANIFEST) | grep -- "^kernel" | sed -e "s,.*\-,,")
+endif
 
 GITHUB_RUN_ID ?= 0
+GITHUB_SHA    ?= $(shell git rev-parse --short HEAD)
 
 DATE := $(shell date +"%Y%m%d")
 VERSION := $(shell git describe --tags --always --match='v[0-9]*' | cut -d '-' -f 1 | tr -d 'v')
@@ -13,8 +41,14 @@ BUILD := $(shell git describe --tags --long --always --dirty)-$(DATE)-$(GITHUB_R
 SHOW_ENV_VARS = \
 	VERSION \
 	RELEASE \
+	GITHUB_SHA \
 	GITHUB_RUN_ID \
-	BUILD
+	BUILD \
+	OPENWRT_RELEASE \
+	OPENWRT_ARCH \
+	OPENWRT_TARGET \
+	OPENWRT_SUBTARGET \
+	OPENWRT_VERMAGIC
 
 help: ## Show help message (list targets)
 	@awk 'BEGIN {FS = ":.*##"; printf "\nTargets:\n"} /^[$$()% 0-9a-zA-Z_-]+:.*?##/ {printf "  \033[36m%-25s\033[0m %s\n", $$1, $$2}' $(SELF)
@@ -23,7 +57,7 @@ show-var-%:
 	@{ \
 	escaped_v="$(subst ",\",$($*))" ; \
 	if [ -n "$$escaped_v" ]; then v="$$escaped_v"; else v="(undefined)"; fi; \
-	printf "%-13s %s\n" "$*" "$$v"; \
+	printf "%-20s %s\n" "$*" "$$v"; \
 	}
 
 show-env: $(addprefix show-var-, $(SHOW_ENV_VARS)) ## Show environment details
@@ -124,6 +158,32 @@ compare-logs: | results
 save-logs: | results
 	docker logs tests-loki-1 >results/loki.log 2>&1
 
+loki-exporter: loki_exporter.sh loki_exporter.init loki_exporter.conf
+	mkdir -p $(TOPDIR)/$@
+	install -m 644 $(TOPDIR)/Makefile.package $(TOPDIR)/$@/Makefile
+	mkdir -p $(TOPDIR)/$@/files
+	for f in loki_exporter.init loki_exporter.conf; do \
+		install -m 644 $(TOPDIR)/$${f} $(TOPDIR)/$@/files/ ; \
+	done
+	install -m 755 $(TOPDIR)/loki_exporter.sh $(TOPDIR)/$@/files/loki_exporter.sh
+
+.PHONY: package
+package: loki-exporter ## Build OpenWRT package
+	@{ \
+        set -ex ; \
+        cd $(OPENWRT_SRCDIR) ; \
+        echo "src-link loki_exporter $(LOKI_EXPORTER_SRCDIR)" > feeds.conf ; \
+        ./scripts/feeds update ; \
+        ./scripts/feeds install -a ; \
+        mv .config.old .config ; \
+        echo "CONFIG_PACKAGE_loki-exporter=y" >> .config ; \
+        make defconfig ; \
+        make V=s package/loki-exporter/clean ; \
+        make V=s package/loki-exporter/download ; \
+        make V=s package/loki-exporter/prepare ; \
+        make V=s package/loki-exporter/compile ; \
+        }
+
 .PHONY: clean
 clean: delete-test-env ## Clean-up
 	find $(TOPDIR)/ -type f -name "*.pyc" -delete
@@ -133,3 +193,4 @@ clean: delete-test-env ## Clean-up
 	rm -f $(TOPDIR)/run-test-exporter-onetime
 	find $(TOPDIR)/tests/ -type f -name "*.log.state" -delete
 	rm -rf $(TOPDIR)/results
+	rm -rf $(TOPDIR)/loki-exporter
