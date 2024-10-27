@@ -158,6 +158,53 @@ compare-logs: | results
 save-logs: | results
 	docker logs tests-loki-1 >results/loki.log 2>&1
 
+$(OPENWRT_SRCDIR):
+	@{ \
+	set -ex ; \
+	git clone https://github.com/openwrt/openwrt.git $@ ; \
+	cd $@ ; \
+	git checkout v$(OPENWRT_RELEASE) ; \
+	}
+
+$(OPENWRT_SRCDIR)/feeds.conf: | $(OPENWRT_SRCDIR)
+	@{ \
+	set -ex ; \
+	curl -fsL $(OPENWRT_BASE_URL)/feeds.buildinfo | tee $@ ; \
+	}
+
+$(OPENWRT_SRCDIR)/.config: | $(OPENWRT_SRCDIR)
+	@{ \
+	set -ex ; \
+	curl -fsL $(OPENWRT_BASE_URL)/config.buildinfo > $@ ; \
+	}
+
+.PHONY: build-toolchain
+build-toolchain: $(OPENWRT_SRCDIR)/feeds.conf $(OPENWRT_SRCDIR)/.config ## Build OpenWrt toolchain
+	@{ \
+	set -ex ; \
+	cd $(OPENWRT_SRCDIR) ; \
+	time -p ./scripts/feeds update ; \
+	time -p ./scripts/feeds install -a ; \
+	time -p make defconfig ; \
+	time -p make tools/install -i -j $(NPROC) ; \
+	time -p make toolchain/install -i -j $(NPROC) ; \
+	}
+
+# TODO: this should not be required but actions/cache/save@v4 could not handle circular symlinks with error like this:
+# Warning: ELOOP: too many symbolic links encountered, stat '/home/runner/work/amneziawg-openwrt/amneziawg-openwrt/openwrt/staging_dir/toolchain-mips_24kc_gcc-11.2.0_musl/initial/lib/lib'
+# Warning: Cache save failed.
+.PHONY: purge-circular-symlinks
+purge-circular-symlinks:
+	@{ \
+	set -ex ; \
+	cd $(OPENWRT_SRCDIR) ; \
+	export LC_ALL=C ; \
+	for deadlink in $$(find . -follow -type l -printf "" 2>&1 | sed -e "s/find: '\(.*\)': Too many levels of symbolic links.*/\1/"); do \
+		echo "deleting dead link: $${deadlink}" ; \
+		rm -f "$${deadlink}" ; \
+	done ; \
+	}
+
 loki-exporter: loki_exporter.sh loki_exporter.init loki_exporter.conf
 	mkdir -p $(TOPDIR)/$@
 	install -m 644 $(TOPDIR)/Makefile.package $(TOPDIR)/$@/Makefile
