@@ -121,3 +121,9 @@ jobs:
           make show-env
           time -p make package
           make prepare-artifacts
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: loki-exporter-${{ github.sha }}_v${{ matrix.build_env.tag }}_${{ matrix.build_env.pkgarch}}_${{ matrix.build_env.target}}_${{ matrix.build_env.subtarget}}
+          path: loki_exporter_artifacts/*
