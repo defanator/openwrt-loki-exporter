@@ -119,11 +119,12 @@ jobs:
           set -x
           cd openwrt-loki-exporter
           make show-env
+          make export-env >> $GITHUB_OUTPUT
           time -p make package
           make prepare-artifacts
 
       - name: upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: loki-exporter-${{ github.sha }}_v${{ matrix.build_env.tag }}_${{ matrix.build_env.pkgarch}}_${{ matrix.build_env.target}}_${{ matrix.build_env.subtarget}}
+          name: loki-exporter-${{ steps.build-package.outputs.version_str }}_v${{ matrix.build_env.tag }}_${{ matrix.build_env.pkgarch }}_${{ matrix.build_env.target }}_${{ matrix.build_env.subtarget }}
           path: loki_exporter_artifacts/*

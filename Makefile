@@ -32,17 +32,19 @@ endif
 
 GITHUB_RUN_ID ?= 0
 GITHUB_SHA    ?= $(shell git rev-parse --short HEAD)
+VERSION_STR   ?= $(shell git describe --tags --long --dirty)
 
-DATE := $(shell date +"%Y%m%d")
+DATE    := $(shell date +"%Y%m%d")
 VERSION := $(shell git describe --tags --always --match='v[0-9]*' | cut -d '-' -f 1 | tr -d 'v')
 RELEASE := $(shell git describe --tags --always --match='v[0-9]*' --long | cut -d '-' -f 2)
-BUILD := $(shell git describe --tags --long --always --dirty)-$(DATE)-$(GITHUB_RUN_ID)
+BUILD   := $(shell git describe --tags --long --always --dirty)-$(DATE)-$(GITHUB_RUN_ID)
 
 SHOW_ENV_VARS = \
 	VERSION \
 	RELEASE \
 	GITHUB_SHA \
 	GITHUB_RUN_ID \
+	VERSION_STR \
 	BUILD \
 	OPENWRT_RELEASE \
 	OPENWRT_ARCH \
@@ -61,6 +63,15 @@ show-var-%:
 	}
 
 show-env: $(addprefix show-var-, $(SHOW_ENV_VARS)) ## Show environment details
+
+export-var-%:
+	@{ \
+	escaped_v="$(subst ",\",$($*))" ; \
+	if [ -n "$$escaped_v" ]; then v="$$escaped_v"; else v="(undefined)"; fi; \
+	printf "%s=%s\n" "$*" "$$v"; \
+	}
+
+export-env: $(addprefix export-var-, $(SHOW_ENV_VARS)) ## Export environment
 
 results:
 	mkdir -p results
@@ -207,7 +218,11 @@ purge-circular-symlinks:
 
 loki-exporter: loki_exporter.sh loki_exporter.init loki_exporter.conf
 	mkdir -p $(TOPDIR)/$@
-	install -m 644 $(TOPDIR)/Makefile.package $(TOPDIR)/$@/Makefile
+	sed \
+		-e "s,%% PKG_VERSION %%,$(VERSION),g" \
+		-e "s,%% PKG_RELEASE %%,$(RELEASE),g" \
+		-e "s,%% BUILD_ID %%,$(BUILD),g" \
+		< $(TOPDIR)/Makefile.package > $(TOPDIR)/$@/Makefile
 	mkdir -p $(TOPDIR)/$@/files
 	for f in loki_exporter.init loki_exporter.conf; do \
 		install -m 644 $(TOPDIR)/$${f} $(TOPDIR)/$@/files/ ; \

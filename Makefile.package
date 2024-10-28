@@ -1,8 +1,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=loki-exporter
-PKG_VERSION:=1.0.0
-PKG_RELEASE:=1
+PKG_VERSION:=%% PKG_VERSION %%
+PKG_RELEASE:=%% PKG_RELEASE %%
 PKG_LICENSE:=MIT
 PKG_MAINTAINER:=Andrei Belov <defanator@gmail.com>
 
@@ -20,6 +20,8 @@ endef
 define Package/loki-exporter/description
 Tiny service for exporting system log to remote Loki instance,
 written in pure shell.
+
+Build ID: %% BUILD_ID %%
 
 endef
 
