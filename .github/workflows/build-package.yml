@@ -112,3 +112,12 @@ jobs:
             openwrt/package/**
             openwrt/staging_dir/**
             openwrt/tmp/**
+
+      - name: build package
+        id: build-package
+        run: |
+          set -x
+          cd openwrt-loki-exporter
+          make show-env
+          time -p make package
+          make prepare-artifacts
