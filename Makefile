@@ -2,19 +2,55 @@
 
 TOPDIR := $(realpath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 SELF := $(abspath $(lastword $(MAKEFILE_LIST)))
+UPPERDIR := $(realpath $(TOPDIR)/../)
+
+OPENWRT_SRCDIR   ?= $(UPPERDIR)/openwrt
+LOKI_EXPORTER_SRCDIR ?= $(TOPDIR)
+LOKI_EXPORTER_DSTDIR ?= $(UPPERDIR)/loki_exporter_artifacts
+
+OPENWRT_RELEASE   ?= 23.05.3
+OPENWRT_ARCH      ?= mips_24kc
+OPENWRT_TARGET    ?= ath79
+OPENWRT_SUBTARGET ?= generic
+OPENWRT_VERMAGIC  ?= auto
+
+OPENWRT_ROOT_URL  ?= https://downloads.openwrt.org/releases
+OPENWRT_BASE_URL  ?= $(OPENWRT_ROOT_URL)/$(OPENWRT_RELEASE)/targets/$(OPENWRT_TARGET)/$(OPENWRT_SUBTARGET)
+OPENWRT_MANIFEST  ?= $(OPENWRT_BASE_URL)/openwrt-$(OPENWRT_RELEASE)-$(OPENWRT_TARGET)-$(OPENWRT_SUBTARGET).manifest
+
+ifndef OPENWRT_VERMAGIC
+_NEED_VERMAGIC=1
+endif
+
+ifeq ($(OPENWRT_VERMAGIC), auto)
+_NEED_VERMAGIC=1
+endif
+
+ifeq ($(_NEED_VERMAGIC), 1)
+OPENWRT_VERMAGIC := $(shell curl -fs $(OPENWRT_MANIFEST) | grep -- "^kernel" | sed -e "s,.*\-,,")
+endif
 
 GITHUB_RUN_ID ?= 0
+GITHUB_SHA    ?= $(shell git rev-parse --short HEAD)
+VERSION_STR   ?= $(shell git describe --tags --long --dirty)
 
-DATE := $(shell date +"%Y%m%d")
+DATE    := $(shell date +"%Y%m%d")
 VERSION := $(shell git describe --tags --always --match='v[0-9]*' | cut -d '-' -f 1 | tr -d 'v')
 RELEASE := $(shell git describe --tags --always --match='v[0-9]*' --long | cut -d '-' -f 2)
-BUILD := $(shell git describe --tags --long --always --dirty)-$(DATE)-$(GITHUB_RUN_ID)
+BUILD   := $(shell git describe --tags --long --always --dirty)-$(DATE)-$(GITHUB_RUN_ID)
 
 SHOW_ENV_VARS = \
 	VERSION \
 	RELEASE \
+	GITHUB_SHA \
 	GITHUB_RUN_ID \
-	BUILD
+	VERSION_STR \
+	BUILD \
+	OPENWRT_RELEASE \
+	OPENWRT_ARCH \
+	OPENWRT_TARGET \
+	OPENWRT_SUBTARGET \
+	OPENWRT_VERMAGIC
 
 help: ## Show help message (list targets)
 	@awk 'BEGIN {FS = ":.*##"; printf "\nTargets:\n"} /^[$$()% 0-9a-zA-Z_-]+:.*?##/ {printf "  \033[36m%-25s\033[0m %s\n", $$1, $$2}' $(SELF)
@@ -23,10 +59,19 @@ show-var-%:
 	@{ \
 	escaped_v="$(subst ",\",$($*))" ; \
 	if [ -n "$$escaped_v" ]; then v="$$escaped_v"; else v="(undefined)"; fi; \
-	printf "%-13s %s\n" "$*" "$$v"; \
+	printf "%-20s %s\n" "$*" "$$v"; \
 	}
 
 show-env: $(addprefix show-var-, $(SHOW_ENV_VARS)) ## Show environment details
+
+export-var-%:
+	@{ \
+	escaped_v="$(subst ",\",$($*))" ; \
+	if [ -n "$$escaped_v" ]; then v="$$escaped_v"; else v="(undefined)"; fi; \
+	printf "%s=%s\n" "$*" "$$v"; \
+	}
+
+export-env: $(addprefix export-var-, $(SHOW_ENV_VARS)) ## Export environment
 
 results:
 	mkdir -p results
@@ -124,6 +169,92 @@ compare-logs: | results
 save-logs: | results
 	docker logs tests-loki-1 >results/loki.log 2>&1
 
+$(OPENWRT_SRCDIR):
+	@{ \
+	set -ex ; \
+	git clone https://github.com/openwrt/openwrt.git $@ ; \
+	cd $@ ; \
+	git checkout v$(OPENWRT_RELEASE) ; \
+	}
+
+$(OPENWRT_SRCDIR)/feeds.conf: | $(OPENWRT_SRCDIR)
+	@{ \
+	set -ex ; \
+	curl -fsL $(OPENWRT_BASE_URL)/feeds.buildinfo | tee $@ ; \
+	}
+
+$(OPENWRT_SRCDIR)/.config: | $(OPENWRT_SRCDIR)
+	@{ \
+	set -ex ; \
+	curl -fsL $(OPENWRT_BASE_URL)/config.buildinfo > $@ ; \
+	}
+
+.PHONY: build-toolchain
+build-toolchain: $(OPENWRT_SRCDIR)/feeds.conf $(OPENWRT_SRCDIR)/.config ## Build OpenWrt toolchain
+	@{ \
+	set -ex ; \
+	cd $(OPENWRT_SRCDIR) ; \
+	time -p ./scripts/feeds update ; \
+	time -p ./scripts/feeds install -a ; \
+	time -p make defconfig ; \
+	time -p make tools/install -i -j $(NPROC) ; \
+	time -p make toolchain/install -i -j $(NPROC) ; \
+	}
+
+# TODO: this should not be required but actions/cache/save@v4 could not handle circular symlinks with error like this:
+# Warning: ELOOP: too many symbolic links encountered, stat '/home/runner/work/amneziawg-openwrt/amneziawg-openwrt/openwrt/staging_dir/toolchain-mips_24kc_gcc-11.2.0_musl/initial/lib/lib'
+# Warning: Cache save failed.
+.PHONY: purge-circular-symlinks
+purge-circular-symlinks:
+	@{ \
+	set -ex ; \
+	cd $(OPENWRT_SRCDIR) ; \
+	export LC_ALL=C ; \
+	for deadlink in $$(find . -follow -type l -printf "" 2>&1 | sed -e "s/find: '\(.*\)': Too many levels of symbolic links.*/\1/"); do \
+		echo "deleting dead link: $${deadlink}" ; \
+		rm -f "$${deadlink}" ; \
+	done ; \
+	}
+
+loki-exporter: loki_exporter.sh loki_exporter.init loki_exporter.conf
+	mkdir -p $(TOPDIR)/$@
+	sed \
+		-e "s,%% PKG_VERSION %%,$(VERSION),g" \
+		-e "s,%% PKG_RELEASE %%,$(RELEASE),g" \
+		-e "s,%% BUILD_ID %%,$(BUILD),g" \
+		< $(TOPDIR)/Makefile.package > $(TOPDIR)/$@/Makefile
+	mkdir -p $(TOPDIR)/$@/files
+	for f in loki_exporter.init loki_exporter.conf; do \
+		install -m 644 $(TOPDIR)/$${f} $(TOPDIR)/$@/files/ ; \
+	done
+	install -m 755 $(TOPDIR)/loki_exporter.sh $(TOPDIR)/$@/files/loki_exporter.sh
+
+.PHONY: package
+package: loki-exporter ## Build OpenWRT package
+	@{ \
+        set -ex ; \
+        cd $(OPENWRT_SRCDIR) ; \
+        echo "src-link loki_exporter $(LOKI_EXPORTER_SRCDIR)" > feeds.conf ; \
+        ./scripts/feeds update ; \
+        ./scripts/feeds install -a ; \
+        mv .config.old .config ; \
+        echo "CONFIG_PACKAGE_loki-exporter=y" >> .config ; \
+        make defconfig ; \
+        make V=s package/loki-exporter/clean ; \
+        make V=s package/loki-exporter/download ; \
+        make V=s package/loki-exporter/prepare ; \
+        make V=s package/loki-exporter/compile ; \
+        }
+
+.PHONY: prepare-artifacts
+prepare-artifacts: ## Save loki-exporter artifacts (.ipk packages)
+	@{ \
+        set -ex ; \
+        cd $(OPENWRT_SRCDIR) ; \
+        mkdir -p $(LOKI_EXPORTER_DSTDIR) ; \
+        cp bin/packages/$(OPENWRT_ARCH)/loki_exporter/loki-exporter_*.ipk $(LOKI_EXPORTER_DSTDIR)/ ; \
+        }
+
 .PHONY: clean
 clean: delete-test-env ## Clean-up
 	find $(TOPDIR)/ -type f -name "*.pyc" -delete
@@ -133,3 +264,4 @@ clean: delete-test-env ## Clean-up
 	rm -f $(TOPDIR)/run-test-exporter-onetime
 	find $(TOPDIR)/tests/ -type f -name "*.log.state" -delete
 	rm -rf $(TOPDIR)/results
+	rm -rf $(TOPDIR)/loki-exporter
