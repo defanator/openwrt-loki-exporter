@@ -1,7 +1,9 @@
 name: build package
 
 on:
-  push:
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       openwrt_version:
@@ -72,7 +74,7 @@ jobs:
           fail-on-cache-miss: false
           key: ${{ runner.os }}-openwrt-cache-toolchain-${{ matrix.build_env.tag }}-${{ matrix.build_env.pkgarch }}-${{ matrix.build_env.target }}-${{ matrix.build_env.subtarget }}
           restore-keys: |
-            ${{ runner.os }}-openwrt-cache-tools-${{ matrix.build_env.pkgarch }}-
+            ${{ runner.os }}-openwrt-cache-toolchain-${{ matrix.build_env.pkgarch }}-
           path: |
             openwrt/.config
             openwrt/.config.old
