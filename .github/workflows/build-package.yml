@@ -2,7 +2,7 @@ name: build package
 
 on:
   schedule:
-    - cron: "15 9 * * 0,4"
+    - cron: '30 9 * * 0,4'
   pull_request:
     branches:
       - main
