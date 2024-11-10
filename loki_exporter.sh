@@ -56,7 +56,7 @@ _do_bulk_post() {
     rm -f ${BULK_DATA}
 
     if curl -fs -X POST -H "Content-Type: application/json" -H "Content-Encoding: gzip" -H "Authorization: Basic ${LOKI_AUTH_HEADER}" --data-binary "@${BULK_DATA}.payload.gz" "${LOKI_PUSH_URL}"; then
-        if [ "${AUTOTEST}" -eq 1 ]; then
+        if [ "${AUTOTEST-0}" -eq 1 ]; then
             mkdir -p results
             cp ${BULK_DATA}.payload.gz results/
         fi
@@ -144,7 +144,7 @@ fi
 
 while true; do
     _main_loop
-    if [ "${AUTOTEST}" -eq 1 ]; then
+    if [ "${AUTOTEST-0}" -eq 1 ]; then
         exit 0
     fi
     echo "tailer exited, starting over" >&2
