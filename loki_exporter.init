@@ -1,6 +1,9 @@
 #!/bin/sh /etc/rc.common
 
+# delayed start to ensure network and NTP sync are done
 START=99
+# stop before stopping network
+STOP=89
 
 USE_PROCD=1
 NAME=loki_exporter
