@@ -25,6 +25,10 @@ Build ID: %% BUILD_ID %%
 
 endef
 
+define Package/loki-exporter/conffiles
+/etc/config/loki_exporter
+endef
+
 define Build/Prepare
 endef
 
