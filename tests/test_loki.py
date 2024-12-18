@@ -125,7 +125,7 @@ def test_line_count_timeshifted():
                     l.append({"ts": ts, "msg": msg})
 
     l = sorted(l, key=lambda d: d["ts"])
-    with open("results/resurrected.log", "w", encoding="utf-8") as file:
+    with open("results/resurrected-timeshifted.log", "w", encoding="utf-8") as file:
         for entry in l:
             file.write(f"{entry['ts']:.3f}: {entry['msg']}\n")
 

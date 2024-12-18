@@ -175,9 +175,12 @@ test: run-test-exporter-onetime run-test-exporter-timeshifted-onetime | .venv re
 compare-logs: | results
 	cat tests/default.log | cut -c 43- | sort >results/messages.original
 	cat results/resurrected.log | cut -c 17- | sort >results/messages.resurrected
-	wc -l results/messages.original results/messages.resurrected
-	diff -u results/messages.original results/messages.resurrected ||:
-	test $$(diff -u results/messages.original results/messages.resurrected | grep -- " (MOCK)$$" | wc -l) -eq 3
+	cat results/resurrected-timeshifted.log | cut -c 17- | sort >results/messages.resurrected-timeshifted
+	for target in messages.resurrected messages.resurrected-timeshifted; do \
+		wc -l results/messages.original results/$${target} ; \
+		diff -u results/messages.original results/$${target} ||: ; \
+		test $$(diff -u results/messages.original results/$${target} | grep -- " (MOCK)$$" | wc -l) -eq 3 ; \
+	done
 
 .PHONY: save-logs
 save-logs: | results

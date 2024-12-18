@@ -78,13 +78,16 @@ _do_bulk_post() {
 _check_for_skewed_timestamp() {
     _log_file="$1"
 
-    th=86400000000000
+    # maximum threshold for comparing timestamps between 2 subsequent log lines (ns)
+    delta_threshold=86400000000000
+
+    # incremental step for substituting timestamps of unsynchronized log lines (ns)
     step=25000000
+
+    # step 1: search for possible skewed timestamp
     prev_ts=0
     line_n=0
     line_n_synced=0
-
-    # step 1: search for possible skewed timestamp
     while read -r line; do
         ts="${line:26:14}"
         ts_ms="${ts/./}"
@@ -97,12 +100,12 @@ _check_for_skewed_timestamp() {
 
         line_n=$((line_n + 1))
 
-        if [ $line_n -eq 1 ]; then
+        if [ "${prev_ts-0}" -eq 0 ]; then
             prev_ts=$ts_ns
         fi
 
         delta_t=$((ts_ns - prev_ts))
-        if [ $delta_t -ge $th ]; then
+        if [ $delta_t -ge $delta_threshold ]; then
             # found a line with timestamp delta exceeding a given threshold
             line_n_synced=$line_n
             break
