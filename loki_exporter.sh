@@ -17,11 +17,11 @@ DATETIME_STR_FORMAT="%a %b %d %H:%M:%S %Y"
 OS=$(uname -s | tr "[:upper:]" "[:lower:]")
 
 if [ "${AUTOTEST-0}" -eq 1 ]; then
-    _CURL_BULK_CMD=(curl --no-progress-meter -fv -H "Content-Type: application/json" -H "Content-Encoding: gzip" -H "Authorization: Basic ${LOKI_AUTH_HEADER}")
-    _CURL_CMD=(curl --no-progress-meter -fv -H "Content-type: application/json" -H "Authorization: Basic ${LOKI_AUTH_HEADER}")
+    _CURL_BULK_CMD=(curl --no-progress-meter -fv -H "Content-Type: application/json" -H "Content-Encoding: gzip" -H "Connection: close")
+    _CURL_CMD=(curl --no-progress-meter -fv -H "Content-Type: application/json" -H "Connection: close")
 else
-    _CURL_BULK_CMD=(curl -fsS -H "Content-Type: application/json" -H "Content-Encoding: gzip" -H "Authorization: Basic ${LOKI_AUTH_HEADER}")
-    _CURL_CMD=(curl -fsS -H "Content-type: application/json" -H "Authorization: Basic ${LOKI_AUTH_HEADER}")
+    _CURL_BULK_CMD=(curl -fsS -H "Content-Type: application/json" -H "Content-Encoding: gzip" -H "Authorization: Basic ${LOKI_AUTH_HEADER}" -H "Connection: close")
+    _CURL_CMD=(curl -fsS -H "Content-Type: application/json" -H "Authorization: Basic ${LOKI_AUTH_HEADER}" -H "Connection: close")
 fi
 
 _setup() {
