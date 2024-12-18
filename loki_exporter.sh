@@ -16,6 +16,14 @@ LOKI_BULK_TEMPLATE_FOOTER="]}]}"
 DATETIME_STR_FORMAT="%a %b %d %H:%M:%S %Y"
 OS=$(uname -s | tr "[:upper:]" "[:lower:]")
 
+if [ "${AUTOTEST-0}" -eq 1 ]; then
+    _CURL_BULK_CMD=(curl --no-progress-meter -fv -X POST -H "Content-Type: application/json" -H "Content-Encoding: gzip" -H "Authorization: Basic ${LOKI_AUTH_HEADER}")
+    _CURL_CMD=(curl -fv -X POST -H "Content-type: application/json" -H "Authorization: Basic ${LOKI_AUTH_HEADER}")
+else
+    _CURL_BULK_CMD=(curl -fsS -X POST -H "Content-Type: application/json" -H "Content-Encoding: gzip" -H "Authorization: Basic ${LOKI_AUTH_HEADER}")
+    _CURL_CMD=(curl -fsS -X POST -H "Content-type: application/json" -H "Authorization: Basic ${LOKI_AUTH_HEADER}")
+fi
+
 _setup() {
     mkfifo "${PIPE_NAME}"
     echo "started with BOOT=${BOOT}" >&2
@@ -65,7 +73,7 @@ _do_bulk_post() {
     echo "${post_body}" | gzip >"${_log_file}.payload.gz"
     rm -f "${_log_file}"
 
-    if ! curl --no-progress-meter -fi -X POST -H "Content-Type: application/json" -H "Content-Encoding: gzip" -H "Authorization: Basic ${LOKI_AUTH_HEADER}" --data-binary "@${_log_file}.payload.gz" "${LOKI_PUSH_URL}" >"${_log_file}.payload.gz-response" 2>&1; then
+    if ! "${_CURL_BULK_CMD[@]}" --data-binary "@${_log_file}.payload.gz" "${LOKI_PUSH_URL}" >"${_log_file}.payload.gz-response" 2>&1; then
         echo "BULK POST FAILED: leaving ${_log_file}.payload.gz for now"
     fi
 }
@@ -203,7 +211,7 @@ _main_loop() {
         post_body="${post_body/TIMESTAMP/$ts_ns}"
         post_body="${post_body/MESSAGE/$msg}"
 
-        if ! curl -fs -X POST -H "Content-type: application/json" -H "Authorization: Basic ${LOKI_AUTH_HEADER}" -d "${post_body}" "${LOKI_PUSH_URL}"; then
+        if ! "${_CURL_CMD[@]}" -d "${post_body}" "${LOKI_PUSH_URL}"; then
             echo "POST FAILED: '${post_body}'"
         fi
 
