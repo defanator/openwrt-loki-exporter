@@ -4,8 +4,9 @@
 # ^^^ the above line is purely for shellcheck to treat this as a bash-like script
 # (OpenWRT's ash from busybox is kinda similar but there still could be issues)
 
-PIPE_NAME="/tmp/loki_exporter.pipe"
-BULK_DATA="/tmp/loki_exporter.boot"
+_TMPDIR=$(mktemp -d -p /tmp loki_exporter.XXXXXX)
+PIPE_NAME="/${_TMPDIR}/loki_exporter.pipe"
+BULK_DATA="/${_TMPDIR}/loki_exporter.boot"
 
 LOKI_MSG_TEMPLATE="{\"streams\": [{\"stream\": {\"job\": \"openwrt_loki_exporter\", \"host\": \"${HOSTNAME}\"}, \"values\": [[\"TIMESTAMP\", \"MESSAGE\"]]}]}"
 LOKI_BULK_TEMPLATE_HEADER="{\"streams\": [{\"stream\": {\"job\": \"openwrt_loki_exporter\", \"host\": \"${HOSTNAME}\"}, \"values\": ["
@@ -13,10 +14,10 @@ LOKI_BULK_TEMPLATE_MSG="[\"TIMESTAMP\", \"MESSAGE\"],"
 LOKI_BULK_TEMPLATE_FOOTER="]}]}"
 
 DATETIME_STR_FORMAT="%a %b %d %H:%M:%S %Y"
-OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+OS=$(uname -s | tr "[:upper:]" "[:lower:]")
 
 _setup() {
-    mkfifo ${PIPE_NAME}
+    mkfifo "${PIPE_NAME}"
     echo "started with BOOT=${BOOT}" >&2
 }
 
@@ -26,11 +27,17 @@ _teardown() {
     else
         echo "tailer ${tailer_pid} killed, exiting" >&2
     fi
-    rm -f ${PIPE_NAME}
+    rm -f "${PIPE_NAME}"
+    if [ "${AUTOTEST-0}" -eq 1 ]; then
+        mkdir -p results
+        cp -r "${_TMPDIR}" results/
+    fi
+    rm -rf "${_TMPDIR}"
     exit 0
 }
 
 _do_bulk_post() {
+    _log_file="$1"
     post_body="${LOKI_BULK_TEMPLATE_HEADER}"
 
     while read -r line; do
@@ -52,26 +59,14 @@ _do_bulk_post() {
         msg_payload="${msg_payload/MESSAGE/$msg}"
 
         post_body="${post_body}${msg_payload}"
-    done <${BULK_DATA}
+    done <"${_log_file}"
 
     post_body="${post_body:0:${#post_body}-1}${LOKI_BULK_TEMPLATE_FOOTER}"
-    echo "${post_body}" | gzip >${BULK_DATA}.payload.gz
-    rm -f ${BULK_DATA}
+    echo "${post_body}" | gzip >"${_log_file}.payload.gz"
+    rm -f "${_log_file}"
 
-    if curl --no-progress-meter -fi -X POST -H "Content-Type: application/json" -H "Content-Encoding: gzip" -H "Authorization: Basic ${LOKI_AUTH_HEADER}" --data-binary "@${BULK_DATA}.payload.gz" "${LOKI_PUSH_URL}" >"${BULK_DATA}.payload.gz-response" 2>&1; then
-        if [ "${AUTOTEST-0}" -eq 1 ]; then
-            mkdir -p results
-            cp ${BULK_DATA}.payload.gz results/
-            cp ${BULK_DATA}.payload.gz-response results/
-        fi
-        rm -f ${BULK_DATA}.payload.gz ${BULK_DATA}.payload.gz-response
-    else
-        echo "BULK POST FAILED: leaving ${BULK_DATA}.payload.gz for now"
-        if [ "${AUTOTEST-0}" -eq 1 ]; then
-            mkdir -p results
-            cp ${BULK_DATA}.payload.gz results/
-            cp ${BULK_DATA}.payload.gz-response results/
-        fi
+    if ! curl --no-progress-meter -fi -X POST -H "Content-Type: application/json" -H "Content-Encoding: gzip" -H "Authorization: Basic ${LOKI_AUTH_HEADER}" --data-binary "@${_log_file}.payload.gz" "${LOKI_PUSH_URL}" >"${_log_file}.payload.gz-response" 2>&1; then
+        echo "BULK POST FAILED: leaving ${_log_file}.payload.gz for now"
     fi
 }
 
@@ -181,7 +176,7 @@ _main_loop() {
         fi
     fi
 
-    ${TAILER_CMD} >${PIPE_NAME} 2>&1 &
+    ${TAILER_CMD} >"${PIPE_NAME}" 2>&1 &
     tailer_pid=$!
 
     while read -r line; do
@@ -213,7 +208,7 @@ _main_loop() {
         fi
 
         MIN_TIMESTAMP="${ts_ns}"
-    done <${PIPE_NAME}
+    done <"${PIPE_NAME}"
 }
 
 _setup
@@ -221,8 +216,8 @@ _setup
 MIN_TIMESTAMP=0
 
 if [ "${BOOT}" -eq 1 ]; then
-    ${LOGREAD} -t >${BULK_DATA}
-    last_line="$(tail -1 ${BULK_DATA})"
+    ${LOGREAD} -t >"${BULK_DATA}"
+    last_line="$(tail -1 "${BULK_DATA}")"
     ts="${last_line:26:14}"
     ts_ms="${ts/./}"
 
@@ -235,7 +230,7 @@ if [ "${BOOT}" -eq 1 ]; then
     fi
 
     _check_for_skewed_timestamp "${BULK_DATA}"
-    _do_bulk_post
+    _do_bulk_post "${BULK_DATA}"
 fi
 
 trap "_teardown" SIGINT SIGTERM EXIT
