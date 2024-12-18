@@ -12,6 +12,9 @@ LOKI_BULK_TEMPLATE_HEADER="{\"streams\": [{\"stream\": {\"job\": \"openwrt_loki_
 LOKI_BULK_TEMPLATE_MSG="[\"TIMESTAMP\", \"MESSAGE\"],"
 LOKI_BULK_TEMPLATE_FOOTER="]}]}"
 
+DATETIME_STR_FORMAT="%a %b %d %H:%M:%S %Y"
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+
 _setup() {
     mkfifo ${PIPE_NAME}
     echo "started with BOOT=${BOOT}" >&2
@@ -64,7 +67,103 @@ _do_bulk_post() {
         rm -f ${BULK_DATA}.payload.gz ${BULK_DATA}.payload.gz-response
     else
         echo "BULK POST FAILED: leaving ${BULK_DATA}.payload.gz for now"
+        if [ "${AUTOTEST-0}" -eq 1 ]; then
+            mkdir -p results
+            cp ${BULK_DATA}.payload.gz results/
+            cp ${BULK_DATA}.payload.gz-response results/
+        fi
     fi
+}
+
+_check_for_skewed_timestamp() {
+    _log_file="$1"
+
+    th=86400000000000
+    step=25000000
+    prev_ts=0
+    line_n=0
+    line_n_synced=0
+
+    # step 1: search for possible skewed timestamp
+    while read -r line; do
+        ts="${line:26:14}"
+        ts_ms="${ts/./}"
+
+        # shellcheck disable=SC2116
+        # subshell is required to handle multiplication errors and keep the loop
+        if ! ts_ns="$(echo $(( ts_ms * 1000 * 1000 )) )" ; then
+            continue
+        fi
+
+        line_n=$((line_n + 1))
+
+        if [ $line_n -eq 1 ]; then
+            prev_ts=$ts_ns
+        fi
+
+        delta_t=$((ts_ns - prev_ts))
+        if [ $delta_t -ge $th ]; then
+            # found a line with timestamp delta exceeding a given threshold
+            line_n_synced=$line_n
+            break
+        fi
+
+        prev_ts=$ts_ns
+    done <"${_log_file}"
+
+    if [ $line_n_synced -eq 0 ]; then
+        # no skew detected, nothing to do
+        return
+    fi
+
+    # skew detected, 1st synced line is $line_n_synced;
+    # round new ts to nearest second
+    ts_ns=$((ts_ns / 1000000000))
+    ts_ns=$((ts_ns * 1000000000))
+    new_ts=$((ts_ns - step * (line_n_synced-1)))
+
+    # step 2: re-create boot log with fake timestamps in appropriate range
+    rm -f "${_log_file}.new"
+    line_n=0
+    while read -r line; do
+        ts="${line:26:14}"
+        ts_ms="${ts/./}"
+
+        # shellcheck disable=SC2116
+        # subshell is required to handle multiplication errors and keep the loop
+        if ! ts_ns="$(echo $(( ts_ms * 1000 * 1000 )) )" ; then
+            continue
+        fi
+
+        line_n=$((line_n + 1))
+
+        # for lines with valid timestamps, just print a line as is
+        if [ $line_n -ge $line_n_synced ]; then
+            printf "%s\n" "$line" >>"$1.new"
+            continue
+        fi
+
+        # otherwise, craft a new line
+        msg="${line:42:2000}"
+
+        new_ts_s=$((new_ts / 1000000000))
+        case "${OS}" in
+            darwin)
+                datetime_str=$(date -r "${new_ts_s}" +"${DATETIME_STR_FORMAT}")
+                ;;
+            *)
+                datetime_str=$(date -d @"${new_ts_s}" +"${DATETIME_STR_FORMAT}")
+                ;;
+        esac
+
+        new_ts_ms_rounded=$((new_ts / 1000000))
+        printf "%s [%s] %s\n" "${datetime_str}" "${new_ts_ms_rounded:0:10}.${new_ts_ms_rounded:10:13}" "${msg}" >>"${_log_file}.new"
+
+        # increase timestamp
+        new_ts=$((new_ts + step))
+    done <"${_log_file}"
+
+    mv "${_log_file}.new" "${_log_file}"
 }
 
 _main_loop() {
@@ -132,6 +231,7 @@ if [ "${BOOT}" -eq 1 ]; then
         MIN_TIMESTAMP=${ts_ns}
     fi
 
+    _check_for_skewed_timestamp "${BULK_DATA}"
     _do_bulk_post
 fi
 

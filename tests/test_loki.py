@@ -4,7 +4,6 @@ Base tests for loki_exporter
 
 from datetime import datetime, timedelta, timezone
 from platform import node as gethostname
-import pytest
 from client import BASE_URL, query_labels, query_range
 
 
@@ -36,10 +35,9 @@ def test_line_count():
         "%Y-%m-%dT%H:%M:%SZ"
     )
 
-    hostname = gethostname()
     response = query_range(
         BASE_URL,
-        f'{{job="openwrt_loki_exporter", host="{hostname}"}}',
+        f'{{job="openwrt_loki_exporter", host="{gethostname()}"}}',
         start_time,
         current_time,
         limit=1000,
@@ -85,9 +83,6 @@ def test_line_count():
     ), "count of total processed lines"
 
 
-@pytest.mark.skip(
-    reason="TODO: not yet; https://github.com/defanator/openwrt-loki-exporter/issues/5"
-)
 def test_line_count_timeshifted():
     """
     Verify that loki returns expected number of processed lines
@@ -98,10 +93,9 @@ def test_line_count_timeshifted():
         "%Y-%m-%dT%H:%M:%SZ"
     )
 
-    hostname = gethostname()
     response = query_range(
         BASE_URL,
-        f'{{job="openwrt_loki_exporter", host="{hostname}.timeshifted"}}',
+        f'{{job="openwrt_loki_exporter", host="{gethostname()}.timeshifted"}}',
         start_time,
         current_time,
         limit=1000,
