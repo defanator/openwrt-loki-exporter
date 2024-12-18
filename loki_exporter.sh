@@ -55,12 +55,13 @@ _do_bulk_post() {
     echo "${post_body}" | gzip >${BULK_DATA}.payload.gz
     rm -f ${BULK_DATA}
 
-    if curl -fs -X POST -H "Content-Type: application/json" -H "Content-Encoding: gzip" -H "Authorization: Basic ${LOKI_AUTH_HEADER}" --data-binary "@${BULK_DATA}.payload.gz" "${LOKI_PUSH_URL}"; then
+    if curl --no-progress-meter -fi -X POST -H "Content-Type: application/json" -H "Content-Encoding: gzip" -H "Authorization: Basic ${LOKI_AUTH_HEADER}" --data-binary "@${BULK_DATA}.payload.gz" "${LOKI_PUSH_URL}" >"${BULK_DATA}.payload.gz-response" 2>&1; then
         if [ "${AUTOTEST-0}" -eq 1 ]; then
             mkdir -p results
             cp ${BULK_DATA}.payload.gz results/
+            cp ${BULK_DATA}.payload.gz-response results/
         fi
-        rm -f ${BULK_DATA}.payload.gz
+        rm -f ${BULK_DATA}.payload.gz ${BULK_DATA}.payload.gz-response
     else
         echo "BULK POST FAILED: leaving ${BULK_DATA}.payload.gz for now"
     fi

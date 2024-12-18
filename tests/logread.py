@@ -21,6 +21,7 @@ class MockLogRead:
         self.lines = []
         self.args = None
         self.ts_first_line = None
+        self.ts_last_line = None
         self.ts_start_from = None
         self.ts_apply_delta = None
 
@@ -142,6 +143,7 @@ class MockLogRead:
             self.lines = [line.rstrip() for line in file.readlines()]
 
         self.ts_first_line = self.get_adjusted_ts(self.lines[0])
+        self.ts_last_line = self.get_adjusted_ts(self.lines[-1])
         state_file = self.args.log_file + ".state"
 
         if os.path.isfile(state_file):
@@ -152,7 +154,8 @@ class MockLogRead:
             with open(state_file, "w", encoding="utf-8") as file:
                 file.write(f"{self.ts_start_from.timestamp()}\n")
 
-        self.ts_apply_delta = self.ts_start_from.timestamp() - self.ts_first_line
+        # for timeshift tests we assume that last line always contains synchronized timestamp
+        self.ts_apply_delta = self.ts_start_from.timestamp() - self.ts_last_line
 
     def print_line(self, line: str):
         """

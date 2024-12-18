@@ -142,6 +142,9 @@ run-test-exporter-boot: test-env ## Run exporter with mocking logread (BOOT=1)
 	LOKI_AUTH_HEADER="none" \
 	/bin/bash -u loki_exporter.sh
 
+tests/default-timeshifted.log: tests/default.log
+	$(TOPDIR)/tests/create_timeshifted_log.py >$@
+
 run-test-exporter-onetime: create-test-env ## Run one-time cycle of mocking logread + exporter (BOOT=1)
 	LOGREAD="./tests/logread.py" \
 	BOOT=1 \
@@ -153,8 +156,19 @@ run-test-exporter-onetime: create-test-env ## Run one-time cycle of mocking logr
 	/bin/bash -u loki_exporter.sh
 	touch $@
 
+run-test-exporter-timeshifted-onetime: tests/default-timeshifted.log create-test-env ## Run one-time cycle of mocking logread + exporter (BOOT=1 with time unsync emulation)
+	LOGREAD="./tests/logread.py --log-file tests/default-timeshifted.log" \
+	BOOT=1 \
+	HOSTNAME="$(shell hostname).timeshifted" \
+	LOKI_PUSH_URL="http://127.0.0.1:3100/loki/api/v1/push" \
+	LOKI_AUTH_HEADER="none" \
+	MAX_FOLLOW_CYCLES=3 \
+	AUTOTEST=1 \
+	/bin/bash -u loki_exporter.sh
+	touch $@
+
 .PHONY: test
-test: run-test-exporter-onetime | .venv results ## Run tests
+test: run-test-exporter-onetime run-test-exporter-timeshifted-onetime | .venv results ## Run tests
 	$(TOPDIR)/.venv/bin/python3 -m pytest
 
 .PHONY: compare-logs
@@ -261,7 +275,8 @@ clean: delete-test-env ## Clean-up
 	find $(TOPDIR)/ -type f -name "*.pyo" -delete
 	find $(TOPDIR)/ -type d -name "__pycache__" -delete
 	rm -rf $(TOPDIR)/.pytest_cache
-	rm -f $(TOPDIR)/run-test-exporter-onetime
+	rm -f $(TOPDIR)/run-test-exporter-onetime $(TOPDIR)/run-test-exporter-timeshifted-onetime
 	find $(TOPDIR)/tests/ -type f -name "*.log.state" -delete
+	rm -f $(TOPDIR)/tests/default-timeshifted.log
 	rm -rf $(TOPDIR)/results
 	rm -rf $(TOPDIR)/loki-exporter
