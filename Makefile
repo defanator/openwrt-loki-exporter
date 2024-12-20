@@ -142,6 +142,9 @@ run-test-exporter-boot: test-env ## Run exporter with mocking logread (BOOT=1)
 	LOKI_AUTH_HEADER="none" \
 	/bin/bash -u loki_exporter.sh
 
+tests/default-timeshifted.log: tests/default.log
+	$(TOPDIR)/tests/create_timeshifted_log.py >$@
+
 run-test-exporter-onetime: create-test-env ## Run one-time cycle of mocking logread + exporter (BOOT=1)
 	LOGREAD="./tests/logread.py" \
 	BOOT=1 \
@@ -153,17 +156,31 @@ run-test-exporter-onetime: create-test-env ## Run one-time cycle of mocking logr
 	/bin/bash -u loki_exporter.sh
 	touch $@
 
+run-test-exporter-timeshifted-onetime: tests/default-timeshifted.log create-test-env ## Run one-time cycle of mocking logread + exporter (BOOT=1 with time unsync emulation)
+	LOGREAD="./tests/logread.py --log-file tests/default-timeshifted.log" \
+	BOOT=1 \
+	HOSTNAME="$(shell hostname).timeshifted" \
+	LOKI_PUSH_URL="http://127.0.0.1:3100/loki/api/v1/push" \
+	LOKI_AUTH_HEADER="none" \
+	MAX_FOLLOW_CYCLES=3 \
+	AUTOTEST=1 \
+	/bin/bash -u loki_exporter.sh
+	touch $@
+
 .PHONY: test
-test: run-test-exporter-onetime | .venv results ## Run tests
+test: run-test-exporter-onetime run-test-exporter-timeshifted-onetime | .venv results ## Run tests
 	$(TOPDIR)/.venv/bin/python3 -m pytest
 
 .PHONY: compare-logs
 compare-logs: | results
 	cat tests/default.log | cut -c 43- | sort >results/messages.original
 	cat results/resurrected.log | cut -c 17- | sort >results/messages.resurrected
-	wc -l results/messages.original results/messages.resurrected
-	diff -u results/messages.original results/messages.resurrected ||:
-	test $$(diff -u results/messages.original results/messages.resurrected | grep -- " (MOCK)$$" | wc -l) -eq 3
+	cat results/resurrected-timeshifted.log | cut -c 17- | sort >results/messages.resurrected-timeshifted
+	for target in messages.resurrected messages.resurrected-timeshifted; do \
+		wc -l results/messages.original results/$${target} ; \
+		diff -u results/messages.original results/$${target} ||: ; \
+		test $$(diff -u results/messages.original results/$${target} | grep -- " (MOCK)$$" | wc -l) -eq 3 ; \
+	done
 
 .PHONY: save-logs
 save-logs: | results
@@ -261,7 +278,8 @@ clean: delete-test-env ## Clean-up
 	find $(TOPDIR)/ -type f -name "*.pyo" -delete
 	find $(TOPDIR)/ -type d -name "__pycache__" -delete
 	rm -rf $(TOPDIR)/.pytest_cache
-	rm -f $(TOPDIR)/run-test-exporter-onetime
+	rm -f $(TOPDIR)/run-test-exporter-onetime $(TOPDIR)/run-test-exporter-timeshifted-onetime
 	find $(TOPDIR)/tests/ -type f -name "*.log.state" -delete
+	rm -f $(TOPDIR)/tests/default-timeshifted.log
 	rm -rf $(TOPDIR)/results
 	rm -rf $(TOPDIR)/loki-exporter
