@@ -4,7 +4,7 @@
 # ^^^ the above line is purely for shellcheck to treat this as a bash-like script
 # (OpenWRT's ash from busybox is kinda similar but there still could be issues)
 
-_TMPDIR=$(mktemp -d -p /tmp loki_exporter.XXXXXX)
+_TMPDIR="$(mktemp -d -p /tmp loki_exporter.XXXXXX)"
 PIPE_NAME="/${_TMPDIR}/loki_exporter.pipe"
 BULK_DATA="/${_TMPDIR}/loki_exporter.boot"
 
@@ -16,17 +16,20 @@ LOKI_BULK_TEMPLATE_FOOTER="]}]}"
 DATETIME_STR_FORMAT="%a %b %d %H:%M:%S %Y"
 OS=$(uname -s | tr "[:upper:]" "[:lower:]")
 
+USER_AGENT="openwrt-loki-exporter/%% VERSION %%"
+BUILD_ID="%% BUILD_ID %%"
+
 if [ "${AUTOTEST-0}" -eq 1 ]; then
-    _CURL_BULK_CMD=(curl --no-progress-meter -fv -H "Content-Type: application/json" -H "Content-Encoding: gzip" -H "Connection: close")
-    _CURL_CMD=(curl --no-progress-meter -fv -H "Content-Type: application/json" -H "Connection: close")
+    _CURL_BULK_CMD=(curl --no-progress-meter -fv -H "Content-Type: application/json" -H "Content-Encoding: gzip" -H "Connection: close" -H "User-Agent: ${USER_AGENT}")
+    _CURL_CMD=(curl --no-progress-meter -fv -H "Content-Type: application/json" -H "Connection: close" -H "User-Agent: ${USER_AGENT}")
 else
-    _CURL_BULK_CMD=(curl -fsS -H "Content-Type: application/json" -H "Content-Encoding: gzip" -H "Authorization: Basic ${LOKI_AUTH_HEADER}" -H "Connection: close")
-    _CURL_CMD=(curl -fsS -H "Content-Type: application/json" -H "Authorization: Basic ${LOKI_AUTH_HEADER}" -H "Connection: close")
+    _CURL_BULK_CMD=(curl -fsS -H "Content-Type: application/json" -H "Content-Encoding: gzip" -H "Authorization: Basic ${LOKI_AUTH_HEADER}" -H "Connection: close" -H "User-Agent: ${USER_AGENT}")
+    _CURL_CMD=(curl -fsS -H "Content-Type: application/json" -H "Authorization: Basic ${LOKI_AUTH_HEADER}" -H "Connection: close" -H "User-Agent: ${USER_AGENT}")
 fi
 
 _setup() {
     mkfifo "${PIPE_NAME}"
-    echo "started with BOOT=${BOOT}" >&2
+    echo "${USER_AGENT} (${BUILD_ID}) started with BOOT=${BOOT}" >&2
 }
 
 _teardown() {
