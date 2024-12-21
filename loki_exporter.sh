@@ -4,7 +4,7 @@
 # ^^^ the above line is purely for shellcheck to treat this as a bash-like script
 # (OpenWRT's ash from busybox is kinda similar but there still could be issues)
 
-_TMPDIR=$(mktemp -d -p /tmp loki_exporter.XXXXXX)
+_TMPDIR="$(mktemp -d -p /tmp loki_exporter.XXXXXX)"
 PIPE_NAME="/${_TMPDIR}/loki_exporter.pipe"
 BULK_DATA="/${_TMPDIR}/loki_exporter.boot"
 
@@ -16,17 +16,48 @@ LOKI_BULK_TEMPLATE_FOOTER="]}]}"
 DATETIME_STR_FORMAT="%a %b %d %H:%M:%S %Y"
 OS=$(uname -s | tr "[:upper:]" "[:lower:]")
 
+USER_AGENT="openwrt-loki-exporter/%% VERSION %%"
+BUILD_ID="%% BUILD_ID %%"
+
+_curl_bulk_cmd() {
 if [ "${AUTOTEST-0}" -eq 1 ]; then
-    _CURL_BULK_CMD=(curl --no-progress-meter -fv -H "Content-Type: application/json" -H "Content-Encoding: gzip" -H "Connection: close")
-    _CURL_CMD=(curl --no-progress-meter -fv -H "Content-Type: application/json" -H "Connection: close")
+    curl --no-progress-meter -fv \
+        -H "Content-Type: application/json" \
+        -H "Content-Encoding: gzip" \
+        -H "User-Agent: ${USER_AGENT}" \
+        -H "Connection: close" \
+        "$@"
 else
-    _CURL_BULK_CMD=(curl -fsS -H "Content-Type: application/json" -H "Content-Encoding: gzip" -H "Authorization: Basic ${LOKI_AUTH_HEADER}" -H "Connection: close")
-    _CURL_CMD=(curl -fsS -H "Content-Type: application/json" -H "Authorization: Basic ${LOKI_AUTH_HEADER}" -H "Connection: close")
+    curl -fsS \
+        -H "Content-Type: application/json" \
+        -H "Content-Encoding: gzip" \
+        -H "User-Agent: ${USER_AGENT}" \
+        -H "Authorization: Basic ${LOKI_AUTH_HEADER}" \
+        -H "Connection: close" \
+        "$@"
 fi
+}
+
+_curl_cmd() {
+if [ "${AUTOTEST-0}" -eq 1 ]; then
+    curl --no-progress-meter -fv \
+        -H "Content-Type: application/json" \
+        -H "User-Agent: ${USER_AGENT}" \
+        -H "Connection: close" \
+        "$@"
+else
+    curl -fsS \
+        -H "Content-Type: application/json" \
+        -H "User-Agent: ${USER_AGENT}" \
+        -H "Authorization: Basic ${LOKI_AUTH_HEADER}" \
+        -H "Connection: close" \
+        "$@"
+fi
+}
 
 _setup() {
     mkfifo "${PIPE_NAME}"
-    echo "started with BOOT=${BOOT}" >&2
+    echo "openwrt-loki-exporter/${BUILD_ID} started with BOOT=${BOOT}" >&2
 }
 
 _teardown() {
@@ -73,7 +104,7 @@ _do_bulk_post() {
     echo "${post_body}" | gzip >"${_log_file}.payload.gz"
     rm -f "${_log_file}"
 
-    if ! "${_CURL_BULK_CMD[@]}" --data-binary "@${_log_file}.payload.gz" "${LOKI_PUSH_URL}" >"${_log_file}.payload.gz-response" 2>&1; then
+    if ! _curl_bulk_cmd --data-binary "@${_log_file}.payload.gz" "${LOKI_PUSH_URL}" >"${_log_file}.payload.gz-response" 2>&1; then
         echo "BULK POST FAILED: leaving ${_log_file}.payload.gz for now"
     fi
 }
@@ -211,7 +242,7 @@ _main_loop() {
         post_body="${post_body/TIMESTAMP/$ts_ns}"
         post_body="${post_body/MESSAGE/$msg}"
 
-        if ! "${_CURL_CMD[@]}" -d "${post_body}" "${LOKI_PUSH_URL}"; then
+        if ! _curl_cmd -d "${post_body}" "${LOKI_PUSH_URL}"; then
             echo "POST FAILED: '${post_body}'"
         fi
 

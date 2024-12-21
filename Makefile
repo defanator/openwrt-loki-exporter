@@ -244,7 +244,11 @@ loki-exporter: loki_exporter.sh loki_exporter.init loki_exporter.conf
 	for f in loki_exporter.init loki_exporter.conf; do \
 		install -m 644 $(TOPDIR)/$${f} $(TOPDIR)/$@/files/ ; \
 	done
-	install -m 755 $(TOPDIR)/loki_exporter.sh $(TOPDIR)/$@/files/loki_exporter.sh
+	sed \
+		-e "s,%% VERSION %%,$(VERSION),g" \
+		-e "s,%% BUILD_ID %%,$(BUILD),g" \
+		< $(TOPDIR)/loki_exporter.sh > $(TOPDIR)/$@/files/loki_exporter.sh
+	chmod 755 $(TOPDIR)/$@/files/loki_exporter.sh
 
 .PHONY: package
 package: loki-exporter ## Build OpenWRT package
