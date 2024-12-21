@@ -112,8 +112,9 @@ _do_bulk_post() {
 _check_for_skewed_timestamp() {
     _log_file="$1"
 
-    # maximum threshold for comparing timestamps between 2 subsequent log lines (ns)
-    delta_threshold=86400000000000
+    # maximum threshold for comparing timestamps between 2 subsequent log lines (s, ns)
+    delta_threshold_seconds="${SKEWED_TIMESTAMP_DELTA_THRESHOLD-3600}"
+    delta_threshold=$((delta_threshold_seconds * 10**9))
 
     # incremental step for substituting timestamps of unsynchronized log lines (ns)
     step=25000000
@@ -249,6 +250,13 @@ _main_loop() {
         MIN_TIMESTAMP="${ts_ns}"
     done <"${PIPE_NAME}"
 }
+
+if [ "${BOOT}" -eq 1 ]; then
+    if [ "${START_DELAY_ON_BOOT-0}" -gt 0 ]; then
+        echo "sleeping ${START_DELAY_ON_BOOT-0} seconds before proceeding" >&2
+        sleep "${START_DELAY_ON_BOOT-0}"
+    fi
+fi
 
 _setup
 
