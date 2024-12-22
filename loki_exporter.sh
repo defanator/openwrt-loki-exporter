@@ -5,8 +5,9 @@
 # (OpenWRT's ash from busybox is kinda similar but there still could be issues)
 
 _TMPDIR="$(mktemp -d -p /tmp loki_exporter.XXXXXX)"
-PIPE_NAME="/${_TMPDIR}/loki_exporter.pipe"
-BULK_DATA="/${_TMPDIR}/loki_exporter.boot"
+PIPE_NAME="${_TMPDIR}/loki_exporter.pipe"
+BULK_DATA="${_TMPDIR}/loki_exporter.boot"
+LOCAL_LOG="${_TMPDIR}/log"
 
 LOKI_MSG_TEMPLATE="{\"streams\": [{\"stream\": {\"job\": \"openwrt_loki_exporter\", \"host\": \"${HOSTNAME}\"}, \"values\": [[\"TIMESTAMP\", \"MESSAGE\"]]}]}"
 LOKI_BULK_TEMPLATE_HEADER="{\"streams\": [{\"stream\": {\"job\": \"openwrt_loki_exporter\", \"host\": \"${HOSTNAME}\"}, \"values\": ["
@@ -28,7 +29,7 @@ if [ "${AUTOTEST-0}" -eq 1 ]; then
         -H "Connection: close" \
         "$@"
 else
-    curl -fsS \
+    curl --no-progress-meter -fi \
         -H "Content-Type: application/json" \
         -H "Content-Encoding: gzip" \
         -H "User-Agent: ${USER_AGENT}" \
@@ -70,9 +71,35 @@ _teardown() {
     if [ "${AUTOTEST-0}" -eq 1 ]; then
         mkdir -p results
         cp -r "${_TMPDIR}" results/
+        echo "LOG:"
+        cat "${LOCAL_LOG}"
     fi
     rm -rf "${_TMPDIR}"
     exit 0
+}
+
+_rotate_local_log() {
+    # maximum allowed size of a local log file (bytes)
+    log_max_size=4096
+
+    # how many rotated logs to keep
+    log_rotate=3
+
+    llsize="$(wc -c "${LOCAL_LOG}" | awk '{print $1}')"
+    if [ "${llsize}" -le "${log_max_size}" ]; then
+         return
+    fi
+
+    for i in $(seq $((log_rotate - 1)) -1 1); do
+        if [ ! -e "${LOCAL_LOG}.${i}" ]; then
+            continue
+        fi
+        j=$((i + 1))
+        mv "${LOCAL_LOG}.${i}" "${LOCAL_LOG}.${j}"
+    done
+
+    mv "${LOCAL_LOG}" "${LOCAL_LOG}.1"
+    touch "${LOCAL_LOG}"
 }
 
 _do_bulk_post() {
@@ -86,7 +113,7 @@ _do_bulk_post() {
         # shellcheck disable=SC2116
         # subshell is required to handle multiplication errors and keep the loop
         if ! ts_ns="$(echo $(( ts_ms * 1000 * 1000 )) )" ; then
-            echo "PARSE ERROR: '${line}'"
+            echo "PARSE ERROR: '${line}'" >>"${LOCAL_LOG}"
             continue
         fi
 
@@ -105,7 +132,7 @@ _do_bulk_post() {
     rm -f "${_log_file}"
 
     if ! _curl_bulk_cmd --data-binary "@${_log_file}.payload.gz" "${LOKI_PUSH_URL}" >"${_log_file}.payload.gz-response" 2>&1; then
-        echo "BULK POST FAILED: leaving ${_log_file}.payload.gz for now"
+        echo "BULK POST FAILED: leaving ${_log_file}.payload.gz for now" >>"${LOCAL_LOG}"
     fi
 }
 
@@ -226,7 +253,7 @@ _main_loop() {
         # shellcheck disable=SC2116
         # subshell is required to handle multiplication errors and keep the loop
         if ! ts_ns="$(echo $(( ts_ms * 1000 * 1000 )) )" ; then
-            echo "PARSE ERROR: '${line}'"
+            echo "PARSE ERROR: '${line}'" >>"${LOCAL_LOG}"
             continue
         fi
 
@@ -243,11 +270,13 @@ _main_loop() {
         post_body="${post_body/TIMESTAMP/$ts_ns}"
         post_body="${post_body/MESSAGE/$msg}"
 
-        if ! _curl_cmd -d "${post_body}" "${LOKI_PUSH_URL}"; then
-            echo "POST FAILED: '${post_body}'"
+        if ! _curl_cmd -d "${post_body}" "${LOKI_PUSH_URL}" >>"${LOCAL_LOG}" 2>&1; then
+            echo "POST FAILED: '${post_body}'" >>"${LOCAL_LOG}"
         fi
 
         MIN_TIMESTAMP="${ts_ns}"
+
+        _rotate_local_log
     done <"${PIPE_NAME}"
 }
 
@@ -271,7 +300,7 @@ if [ "${BOOT}" -eq 1 ]; then
     # shellcheck disable=SC2116
     # subshell is required to handle multiplication errors
     if ! ts_ns="$(echo $(( ts_ms * 1000 * 1000 )) )" ; then
-        echo "PARSE ERROR: '${last_line}'"
+        echo "PARSE ERROR: '${last_line}'" >>"${LOCAL_LOG}"
     else
         MIN_TIMESTAMP=${ts_ns}
     fi
