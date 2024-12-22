@@ -153,6 +153,7 @@ run-test-exporter-onetime: create-test-env ## Run one-time cycle of mocking logr
 	LOKI_AUTH_HEADER="none" \
 	MAX_FOLLOW_CYCLES=3 \
 	AUTOTEST=1 \
+	START_DELAY_ON_BOOT=3 \
 	/bin/bash -u loki_exporter.sh
 	touch $@
 
@@ -164,6 +165,7 @@ run-test-exporter-timeshifted-onetime: tests/default-timeshifted.log create-test
 	LOKI_AUTH_HEADER="none" \
 	MAX_FOLLOW_CYCLES=3 \
 	AUTOTEST=1 \
+	START_DELAY_ON_BOOT=3 \
 	/bin/bash -u loki_exporter.sh
 	touch $@
 
