@@ -12,7 +12,8 @@ of [curl](https://curl.se) (this is the only dependency) to a configured endpoin
 
 It should be able to run on any [relatively modern] OpenWRT installation.
 For the sake of clarity, I have been testing this mostly on OpenWRT 23.05.3 with BusyBox 1.36.1.
-Thankfully, the ash/dash shell bundled with BusyBox supports some bash-specific extensions,
+Thankfully, the ash shell bundled with BusyBox supports some
+[bash-specific extensions](https://github.com/mirror/busybox/blob/1_36_1/shell/ash.c#L54-L57),
 making it easier to test the script locally as well (bash 5.2+ worked fine to me so far).
 
 # Why?
