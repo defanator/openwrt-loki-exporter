@@ -44,6 +44,43 @@ Let alone extra disk space for Python itself plus requirements like `python3-req
 overall RAM consumption of a simple script was around 22 MB which reached almost 1/5
 of all available memory of a router I was running it on.
 
+# Installation
+
+Follow these steps to install, configure, and run the exporter:
+
+1. Pick the latest release from [GitHub releases page](https://github.com/defanator/openwrt-loki-exporter/releases).
+1. Download the `.ipk` binary package from release assets to your OpenWrt router (hint: copy link and run `curl -LO link_to_the_ipk` command directly on your router; make sure you have curl installed - `opkg update && opkg install curl` will do the thing).
+1. Install downloaded package with `opkg install loki-exporter_x.x.x-x_all.ipk`.
+1. Configure Loki URL in `/etc/config/loki_exporter` either manually or via `uci`, e.g. by running:
+   ```shell
+   % uci set loki_exporter.@loki_exporter[0].loki_push_url='https://your.loki.server/api/v1/push'
+   % uci commit loki_exporter
+   ```
+1. If your server is configured with HTTP basic authentication, you need to set the `loki_auth_header` parameter to base64-encoded string of `%HTTP_USER%:%HTTP_PASSWORD%` format, e.g. if a username is `loki_user` and its password is `loki_pass`, you can construct and set the value with these commands:
+   ```shell
+   % echo -n "loki_user:loki_pass" | base64
+   bG9raV91c2VyOmxva2lfcGFzcw==
+   % uci set loki_exporter.@loki_exporter[0].loki_auth_header='bG9raV91c2VyOmxva2lfcGFzcw=='
+   % uci commit loki_exporter
+   ```
+1. Restart the service with `/etc/init.d/loki_exporter restart`.
+
+# Troubleshooting
+
+Exporter is using local log which can be insightful in case of any unexpected issues.
+It is located under temporary directory and named like `/tmp/loki_exporter.XXXXXX/log`, e.g.:
+```shell
+% pwd
+/tmp/loki_exporter.DgjnKj
+% ls -l
+-rw-r--r--    1 root   root     3099 Apr 26 12:40 log
+-rw-r--r--    1 root   root    11601 Apr 11 16:05 loki_exporter.boot.payload.gz
+-rw-r--r--    1 root   root       98 Apr 11 16:05 loki_exporter.boot.payload.gz-response
+prw-r--r--    1 root   root        0 Apr 28 18:50 loki_exporter.pipe
+```
+
+The `loki_exporter.boot.payload.gz` under the same directory will contain initial combined payload that is collected on every boot and being sent as a single chunk.
+
 # Caveat
 
 This solution was made with [KISS principle](https://en.wikipedia.org/wiki/KISS_principle) in mind.
@@ -57,4 +94,4 @@ payload.
 
 # Copyright
 
-Copyright © 2024 Andrei Belov. Released under the [MIT License](LICENSE).
+Copyright © 2024-2025 Andrei Belov. Released under the [MIT License](LICENSE).
