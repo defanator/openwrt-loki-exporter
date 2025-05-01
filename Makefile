@@ -94,9 +94,16 @@ lint: | .venv ## Run linters (shellcheck for .sh, pylint for .py)
 fmt: | .venv ## Run formatters
 	$(TOPDIR)/.venv/bin/python3 -m black tests/*.py
 
-CHECK_ENV_TIMEOUT ?= 30
-create-test-env: ## Spin up testing compose environment with Loki and Grafana
+create-test-env-full: ## Spin up testing compose environment with Loki and Grafana
 	docker compose -f tests/compose.yml up -d
+
+create-test-env: ## Spin up testing compose environment with Loki
+	docker compose -f tests/compose.yml up -d loki
+	touch $@
+
+CHECK_ENV_TIMEOUT ?= 30
+.PHONY: wait-for-loki
+wait-for-loki: create-test-env
 	@{ \
 	rc=0 ; \
 	wait_timeout=$(CHECK_ENV_TIMEOUT) ; \
@@ -120,20 +127,20 @@ create-test-env: ## Spin up testing compose environment with Loki and Grafana
 	fi ; \
 	exit $$rc ; \
 	}
-	touch $@
 
 .PHONY: delete-test-env
-delete-test-env: ## Stop and remove testing compose environment with Loki and Grafana
+delete-test-env: ## Stop and remove testing compose environment
 	docker compose -f tests/compose.yml down
 	rm -f create-test-env
 
 .PHONY: run-test-exporter
-run-test-exporter: create-test-env ## Run exporter with mocking logread (BOOT=0)
+run-test-exporter: wait-for-loki ## Run exporter with mocking logread (BOOT=0)
 	LOGREAD="./tests/logread.py" \
 	BOOT=0 \
 	HOSTNAME="$(shell hostname)" \
 	LOKI_PUSH_URL="http://127.0.0.1:3100/loki/api/v1/push" \
 	LOKI_AUTH_HEADER="none" \
+	LC_ALL=C \
 	$(TEST_SHELL) -u loki_exporter.sh
 
 .PHONY: run-test-exporter-boot
@@ -143,12 +150,13 @@ run-test-exporter-boot: test-env ## Run exporter with mocking logread (BOOT=1)
 	HOSTNAME="$(shell hostname)" \
 	LOKI_PUSH_URL="http://127.0.0.1:3100/loki/api/v1/push" \
 	LOKI_AUTH_HEADER="none" \
+	LC_ALL=C \
 	$(TEST_SHELL) -u loki_exporter.sh
 
 tests/default-timeshifted.log: tests/default.log
 	$(TOPDIR)/tests/create_timeshifted_log.py >$@
 
-run-test-exporter-onetime: create-test-env ## Run one-time cycle of mocking logread + exporter (BOOT=1)
+run-test-exporter-onetime: wait-for-loki ## Run one-time cycle of mocking logread + exporter (BOOT=1)
 	LOGREAD="./tests/logread.py" \
 	BOOT=1 \
 	HOSTNAME="$(shell hostname)" \
@@ -157,10 +165,11 @@ run-test-exporter-onetime: create-test-env ## Run one-time cycle of mocking logr
 	MAX_FOLLOW_CYCLES=3 \
 	AUTOTEST=1 \
 	START_DELAY_ON_BOOT=3 \
+	LC_ALL=C \
 	$(TEST_SHELL) -u loki_exporter.sh
 	touch $@
 
-run-test-exporter-timeshifted-onetime: tests/default-timeshifted.log create-test-env ## Run one-time cycle of mocking logread + exporter (BOOT=1 with time unsync emulation)
+run-test-exporter-timeshifted-onetime: tests/default-timeshifted.log wait-for-loki ## Run one-time cycle of mocking logread + exporter (BOOT=1 with time unsync emulation)
 	LOGREAD="./tests/logread.py --log-file tests/default-timeshifted.log" \
 	BOOT=1 \
 	HOSTNAME="$(shell hostname).timeshifted" \
@@ -169,6 +178,7 @@ run-test-exporter-timeshifted-onetime: tests/default-timeshifted.log create-test
 	MAX_FOLLOW_CYCLES=3 \
 	AUTOTEST=1 \
 	START_DELAY_ON_BOOT=3 \
+	LC_ALL=C \
 	$(TEST_SHELL) -u loki_exporter.sh
 	touch $@
 
