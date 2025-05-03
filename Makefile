@@ -140,7 +140,6 @@ run-test-exporter: wait-for-loki ## Run exporter with mocking logread (BOOT=0)
 	HOSTNAME="$(shell hostname)" \
 	LOKI_PUSH_URL="http://127.0.0.1:3100/loki/api/v1/push" \
 	LOKI_AUTH_HEADER="none" \
-	LC_ALL=C \
 	$(TEST_SHELL) -u loki_exporter.sh
 
 .PHONY: run-test-exporter-boot
@@ -150,7 +149,6 @@ run-test-exporter-boot: test-env ## Run exporter with mocking logread (BOOT=1)
 	HOSTNAME="$(shell hostname)" \
 	LOKI_PUSH_URL="http://127.0.0.1:3100/loki/api/v1/push" \
 	LOKI_AUTH_HEADER="none" \
-	LC_ALL=C \
 	$(TEST_SHELL) -u loki_exporter.sh
 
 tests/default-timeshifted.log: tests/default.log
@@ -165,7 +163,6 @@ run-test-exporter-onetime: wait-for-loki ## Run one-time cycle of mocking logrea
 	MAX_FOLLOW_CYCLES=3 \
 	AUTOTEST=1 \
 	START_DELAY_ON_BOOT=3 \
-	LC_ALL=C \
 	$(TEST_SHELL) -u loki_exporter.sh
 	touch $@
 
@@ -178,7 +175,6 @@ run-test-exporter-timeshifted-onetime: tests/default-timeshifted.log wait-for-lo
 	MAX_FOLLOW_CYCLES=3 \
 	AUTOTEST=1 \
 	START_DELAY_ON_BOOT=3 \
-	LC_ALL=C \
 	$(TEST_SHELL) -u loki_exporter.sh
 	touch $@
 
