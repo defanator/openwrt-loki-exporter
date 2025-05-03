@@ -4,6 +4,8 @@
 # ^^^ the above line is purely for shellcheck to treat this as a bash-like script
 # (OpenWRT's ash from busybox is kinda similar but there still could be issues)
 
+LC_ALL=C
+
 _TMPDIR="$(mktemp -d -p /tmp loki_exporter.XXXXXX)"
 PIPE_NAME="${_TMPDIR}/loki_exporter.pipe"
 BULK_DATA="${_TMPDIR}/loki_exporter.boot"
