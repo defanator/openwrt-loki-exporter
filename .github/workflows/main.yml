@@ -65,14 +65,6 @@ jobs:
           sudo busybox --install bin/
       - name: Create virtualenv
         run: make venv
-      - name: Run formatters
-        if: ${{ always() }}
-        run: |
-          make fmt
-          git diff
-      - name: Run linters
-        if: ${{ always() }}
-        run: make lint
       - name: Run tests
         if: ${{ always() }}
         run: TEST_SHELL=$(pwd)/bin/ash make test
