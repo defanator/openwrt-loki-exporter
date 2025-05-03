@@ -46,12 +46,21 @@ of all available memory of a router I was running it on.
 
 # Installation
 
-Follow these steps to install, configure, and run the exporter:
+Follow these steps to install the exporter package on your OpenWrt system (assuming SSH access is enabled):
 
 1. Pick the latest release from [GitHub releases page](https://github.com/defanator/openwrt-loki-exporter/releases).
 1. Download the `.ipk` binary package from release assets to your OpenWrt router (hint: copy link and run `curl -LO link_to_the_ipk` command directly on your router; make sure you have curl installed - `opkg update && opkg install curl` will do the thing).
 1. Install downloaded package with `opkg install loki-exporter_x.x.x-x_all.ipk`.
-1. Configure Loki URL in `/etc/config/loki_exporter` either manually or via `uci`, e.g. by running:
+
+Alternatively, you can use LuCI web interface (System -> Software) to download and install the package by web link.
+This method does not require shell access (SSH), but you will still need shell to configure the exporter.
+You may want to check [this guide](https://openwrt.org/docs/guide-quick-start/walkthrough_login) and related [article](https://openwrt.org/docs/guide-quick-start/sshadministration) to learn how to enable and configure SSH access on OpenWrt.
+
+# Configuration
+
+In order to configure the exporter for your particular environment, use these instructions (SSH access required):
+
+1. Configure Loki URL in `/etc/config/loki_exporter` either manually with your favorite editor, or via `uci` tool, e.g. by running:
    ```shell
    % uci set loki_exporter.@loki_exporter[0].loki_push_url='https://your.loki.server/api/v1/push'
    % uci commit loki_exporter
