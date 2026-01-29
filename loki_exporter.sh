@@ -101,13 +101,15 @@ _teardown() {
 _rotate_local_log() {
     # maximum allowed size of a local log file (bytes)
     log_max_size=4096
+    
     # how many rotated logs to keep
     log_rotate=3
-    
+
     llsize="$(wc -c "${LOCAL_LOG}" | awk '{print $1}')"
     if [ "${llsize}" -le "${log_max_size}" ]; then
          return
     fi
+    
     for i in $(seq $((log_rotate - 1)) -1 1); do
         if [ ! -e "${LOCAL_LOG}.${i}" ]; then
             continue
@@ -115,6 +117,7 @@ _rotate_local_log() {
         j=$((i + 1))
         mv "${LOCAL_LOG}.${i}" "${LOCAL_LOG}.${j}"
     done
+    
     mv "${LOCAL_LOG}" "${LOCAL_LOG}.1"
     touch "${LOCAL_LOG}"
 }
@@ -130,6 +133,7 @@ _do_bulk_post() {
         ts_ms="${ts/./}"
 
         # shellcheck disable=SC2116
+        # subshell is required to handle multiplication errors and keep the loop
         if ! ts_ns="$(echo $(( ts_ms * 1000 * 1000 )) )" ; then
             echo "PARSE ERROR: '${line}'" >>"${LOCAL_LOG}"
             continue
@@ -193,7 +197,7 @@ _check_for_skewed_timestamp() {
     # maximum threshold for comparing timestamps between 2 subsequent log lines (s, ns)
     delta_threshold_seconds="${SKEWED_TIMESTAMP_DELTA_THRESHOLD-3600}"
     delta_threshold=$((delta_threshold_seconds * 10**9))
-    
+
     # incremental step for substituting timestamps of unsynchronized log lines (ns)
     step=25000000
 
@@ -204,18 +208,21 @@ _check_for_skewed_timestamp() {
     while read -r line; do
         ts="${line:26:14}"
         ts_ms="${ts/./}"
+
         # shellcheck disable=SC2116
         # subshell is required to handle multiplication errors and keep the loop
         if ! ts_ns="$(echo $(( ts_ms * 1000 * 1000 )) )" ; then
             continue
         fi
+
         line_n=$((line_n + 1))
         if [ "${prev_ts-0}" -eq 0 ]; then
             prev_ts=$ts_ns
         fi
+        
         delta_t=$((ts_ns - prev_ts))
-        # found a line with timestamp delta exceeding a given threshold
         if [ $delta_t -ge $delta_threshold ]; then
+            # found a line with timestamp delta exceeding a given threshold
             line_n_synced=$line_n
             break
         fi
@@ -239,18 +246,20 @@ _check_for_skewed_timestamp() {
     while read -r line; do
         ts="${line:26:14}"
         ts_ms="${ts/./}"
+
         # shellcheck disable=SC2116
         # subshell is required to handle multiplication errors and keep the loop
         if ! ts_ns="$(echo $(( ts_ms * 1000 * 1000 )) )" ; then
             continue
         fi
         line_n=$((line_n + 1))
-        
+
         # for lines with valid timestamps, just print a line as is
         if [ $line_n -ge $line_n_synced ]; then
             printf "%s\n" "$line" >>"$1.new"
             continue
         fi
+        
         # otherwise, craft a new line
         msg="${line:42:2000}"
 
@@ -260,11 +269,12 @@ _check_for_skewed_timestamp() {
             darwin) datetime_str=$(date -r "${new_ts_s}" +"${DATETIME_STR_FORMAT}") ;;
             *) datetime_str=$(date -d @"${new_ts_s}" +"${DATETIME_STR_FORMAT}") ;;
         esac
+
         new_ts_ms_rounded=$((new_ts / 1000000))
         printf "%s [%s] %s\n" "${datetime_str}" "${new_ts_ms_rounded:0:10}.${new_ts_ms_rounded:10:13}" "${msg}" >>"${_log_file}.new"
         new_ts=$((new_ts + step))
     done <"${_log_file}"
-    
+
     mv "${_log_file}.new" "${_log_file}"
 }
 
@@ -297,7 +307,7 @@ _main_loop() {
                 continue
             fi
         fi
-        
+
         msg_raw="${line:42:2000}"
         msg="$(_escape_json_string "$msg_raw")"
 
