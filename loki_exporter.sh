@@ -194,6 +194,7 @@ _do_bulk_post() {
 
 _check_for_skewed_timestamp() {
     _log_file="$1"
+
     # maximum threshold for comparing timestamps between 2 subsequent log lines (s, ns)
     delta_threshold_seconds="${SKEWED_TIMESTAMP_DELTA_THRESHOLD-3600}"
     delta_threshold=$((delta_threshold_seconds * 10**9))
@@ -216,6 +217,7 @@ _check_for_skewed_timestamp() {
         fi
 
         line_n=$((line_n + 1))
+
         if [ "${prev_ts-0}" -eq 0 ]; then
             prev_ts=$ts_ns
         fi
@@ -253,6 +255,7 @@ _check_for_skewed_timestamp() {
         if ! ts_ns="$(echo $(( ts_ms * 1000 * 1000 )) )" ; then
             continue
         fi
+
         line_n=$((line_n + 1))
 
         # for lines with valid timestamps, just print a line as is
@@ -264,11 +267,14 @@ _check_for_skewed_timestamp() {
         # otherwise, craft a new line
         msg="${line:42:2000}"
 
-        # increase timestamp
         new_ts_s=$((new_ts / 1000000000))
         case "${OS}" in
-            darwin) datetime_str=$(date -r "${new_ts_s}" +"${DATETIME_STR_FORMAT}") ;;
-            *) datetime_str=$(date -d @"${new_ts_s}" +"${DATETIME_STR_FORMAT}") ;;
+            darwin)
+                datetime_str=$(date -r "${new_ts_s}" +"${DATETIME_STR_FORMAT}")
+                ;;
+            *)
+                datetime_str=$(date -d @"${new_ts_s}" +"${DATETIME_STR_FORMAT}")
+                ;;
         esac
 
         new_ts_ms_rounded=$((new_ts / 1000000))
@@ -325,6 +331,7 @@ _main_loop() {
         fi
 
         MIN_TIMESTAMP="${ts_ns}"
+
         _rotate_local_log
     done <"${PIPE_NAME}"
 }
