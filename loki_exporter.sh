@@ -1,6 +1,8 @@
 #!/bin/ash -u
 #
 # shellcheck shell=bash
+# ^^^ the above line is purely for shellcheck to treat this as a bash-like script
+# (OpenWRT's ash from busybox is kinda similar but there still could be issues)
 
 LC_ALL=C
 
@@ -97,8 +99,11 @@ _teardown() {
 }
 
 _rotate_local_log() {
+    # maximum allowed size of a local log file (bytes)
     log_max_size=4096
+    # how many rotated logs to keep
     log_rotate=3
+    
     llsize="$(wc -c "${LOCAL_LOG}" | awk '{print $1}')"
     if [ "${llsize}" -le "${log_max_size}" ]; then
          return
@@ -185,10 +190,14 @@ _do_bulk_post() {
 
 _check_for_skewed_timestamp() {
     _log_file="$1"
+    # maximum threshold for comparing timestamps between 2 subsequent log lines (s, ns)
     delta_threshold_seconds="${SKEWED_TIMESTAMP_DELTA_THRESHOLD-3600}"
     delta_threshold=$((delta_threshold_seconds * 10**9))
+    
+    # incremental step for substituting timestamps of unsynchronized log lines (ns)
     step=25000000
 
+    # step 1: search for possible skewed timestamp
     prev_ts=0
     line_n=0
     line_n_synced=0
@@ -196,6 +205,7 @@ _check_for_skewed_timestamp() {
         ts="${line:26:14}"
         ts_ms="${ts/./}"
         # shellcheck disable=SC2116
+        # subshell is required to handle multiplication errors and keep the loop
         if ! ts_ns="$(echo $(( ts_ms * 1000 * 1000 )) )" ; then
             continue
         fi
@@ -204,6 +214,7 @@ _check_for_skewed_timestamp() {
             prev_ts=$ts_ns
         fi
         delta_t=$((ts_ns - prev_ts))
+        # found a line with timestamp delta exceeding a given threshold
         if [ $delta_t -ge $delta_threshold ]; then
             line_n_synced=$line_n
             break
@@ -212,28 +223,38 @@ _check_for_skewed_timestamp() {
     done <"${_log_file}"
 
     if [ $line_n_synced -eq 0 ]; then
+        # no skew detected, nothing to do
         return
     fi
 
+    # skew detected, 1st synced line is $line_n_synced;
+    # round new ts to nearest second
     ts_ns=$((ts_ns / 1000000000))
     ts_ns=$((ts_ns * 1000000000))
     new_ts=$((ts_ns - step * (line_n_synced-1)))
 
+    # step 2: re-create boot log with fake timestamps in appropriate range
     rm -f "${_log_file}.new"
     line_n=0
     while read -r line; do
         ts="${line:26:14}"
         ts_ms="${ts/./}"
         # shellcheck disable=SC2116
+        # subshell is required to handle multiplication errors and keep the loop
         if ! ts_ns="$(echo $(( ts_ms * 1000 * 1000 )) )" ; then
             continue
         fi
         line_n=$((line_n + 1))
+        
+        # for lines with valid timestamps, just print a line as is
         if [ $line_n -ge $line_n_synced ]; then
             printf "%s\n" "$line" >>"$1.new"
             continue
         fi
+        # otherwise, craft a new line
         msg="${line:42:2000}"
+
+        # increase timestamp
         new_ts_s=$((new_ts / 1000000000))
         case "${OS}" in
             darwin) datetime_str=$(date -r "${new_ts_s}" +"${DATETIME_STR_FORMAT}") ;;
@@ -243,6 +264,7 @@ _check_for_skewed_timestamp() {
         printf "%s [%s] %s\n" "${datetime_str}" "${new_ts_ms_rounded:0:10}.${new_ts_ms_rounded:10:13}" "${msg}" >>"${_log_file}.new"
         new_ts=$((new_ts + step))
     done <"${_log_file}"
+    
     mv "${_log_file}.new" "${_log_file}"
 }
 
@@ -265,6 +287,7 @@ _main_loop() {
         ts="${line:26:14}"
         ts_ms="${ts/./}"
         # shellcheck disable=SC2116
+        # subshell is required to handle multiplication errors and keep the loop
         if ! ts_ns="$(echo $(( ts_ms * 1000 * 1000 )) )" ; then
             echo "PARSE ERROR: '${line}'" >>"${LOCAL_LOG}"
             continue
@@ -306,11 +329,13 @@ if [ "${BOOT}" -eq 1 ]; then
     ts="${last_line:26:14}"
     ts_ms="${ts/./}"
     # shellcheck disable=SC2116
+    # subshell is required to handle multiplication errors
     if ! ts_ns="$(echo $(( ts_ms * 1000 * 1000 )) )" ; then
         echo "PARSE ERROR: '${last_line}'" >>"${LOCAL_LOG}"
     else
         MIN_TIMESTAMP=${ts_ns}
     fi
+    
     _check_for_skewed_timestamp "${BULK_DATA}"
     _do_bulk_post "${BULK_DATA}"
 fi
