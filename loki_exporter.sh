@@ -101,7 +101,7 @@ _teardown() {
 _rotate_local_log() {
     # maximum allowed size of a local log file (bytes)
     log_max_size=4096
-    
+
     # how many rotated logs to keep
     log_rotate=3
 
@@ -109,7 +109,7 @@ _rotate_local_log() {
     if [ "${llsize}" -le "${log_max_size}" ]; then
          return
     fi
-    
+
     for i in $(seq $((log_rotate - 1)) -1 1); do
         if [ ! -e "${LOCAL_LOG}.${i}" ]; then
             continue
@@ -117,7 +117,7 @@ _rotate_local_log() {
         j=$((i + 1))
         mv "${LOCAL_LOG}.${i}" "${LOCAL_LOG}.${j}"
     done
-    
+
     mv "${LOCAL_LOG}" "${LOCAL_LOG}.1"
     touch "${LOCAL_LOG}"
 }
@@ -219,13 +219,14 @@ _check_for_skewed_timestamp() {
         if [ "${prev_ts-0}" -eq 0 ]; then
             prev_ts=$ts_ns
         fi
-        
+
         delta_t=$((ts_ns - prev_ts))
         if [ $delta_t -ge $delta_threshold ]; then
             # found a line with timestamp delta exceeding a given threshold
             line_n_synced=$line_n
             break
         fi
+
         prev_ts=$ts_ns
     done <"${_log_file}"
 
@@ -259,7 +260,7 @@ _check_for_skewed_timestamp() {
             printf "%s\n" "$line" >>"$1.new"
             continue
         fi
-        
+
         # otherwise, craft a new line
         msg="${line:42:2000}"
 
@@ -272,6 +273,8 @@ _check_for_skewed_timestamp() {
 
         new_ts_ms_rounded=$((new_ts / 1000000))
         printf "%s [%s] %s\n" "${datetime_str}" "${new_ts_ms_rounded:0:10}.${new_ts_ms_rounded:10:13}" "${msg}" >>"${_log_file}.new"
+
+        # increase timestamp
         new_ts=$((new_ts + step))
     done <"${_log_file}"
 
@@ -296,12 +299,14 @@ _main_loop() {
     while read -r line; do
         ts="${line:26:14}"
         ts_ms="${ts/./}"
+
         # shellcheck disable=SC2116
         # subshell is required to handle multiplication errors and keep the loop
         if ! ts_ns="$(echo $(( ts_ms * 1000 * 1000 )) )" ; then
             echo "PARSE ERROR: '${line}'" >>"${LOCAL_LOG}"
             continue
         fi
+
         if [ "${MIN_TIMESTAMP}" -gt 0 ]; then
             if [ "${ts_ns}" -le "${MIN_TIMESTAMP}" ]; then
                 continue
@@ -314,9 +319,11 @@ _main_loop() {
         post_body="${LOKI_MSG_TEMPLATE}"
         post_body="${post_body/TIMESTAMP/$ts_ns}"
         post_body="${post_body/MESSAGE/$msg}"
+
         if ! _curl_cmd -d "${post_body}" "${LOKI_PUSH_URL}" >>"${LOCAL_LOG}" 2>&1; then
             echo "POST FAILED: '${post_body}'" >>"${LOCAL_LOG}"
         fi
+
         MIN_TIMESTAMP="${ts_ns}"
         _rotate_local_log
     done <"${PIPE_NAME}"
@@ -338,6 +345,7 @@ if [ "${BOOT}" -eq 1 ]; then
     last_line="$(tail -1 "${BULK_DATA}")"
     ts="${last_line:26:14}"
     ts_ms="${ts/./}"
+
     # shellcheck disable=SC2116
     # subshell is required to handle multiplication errors
     if ! ts_ns="$(echo $(( ts_ms * 1000 * 1000 )) )" ; then
@@ -345,7 +353,7 @@ if [ "${BOOT}" -eq 1 ]; then
     else
         MIN_TIMESTAMP=${ts_ns}
     fi
-    
+
     _check_for_skewed_timestamp "${BULK_DATA}"
     _do_bulk_post "${BULK_DATA}"
 fi
