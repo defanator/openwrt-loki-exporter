@@ -279,12 +279,17 @@ package: loki-exporter ## Build OpenWRT package
         }
 
 .PHONY: prepare-artifacts
-prepare-artifacts: ## Save loki-exporter artifacts (.ipk packages)
+prepare-artifacts: ## Save loki-exporter artifacts (.ipk and .apk packages)
 	@{ \
         set -ex ; \
         cd $(OPENWRT_SRCDIR) ; \
         mkdir -p $(LOKI_EXPORTER_DSTDIR) ; \
-        cp bin/packages/$(OPENWRT_ARCH)/loki_exporter/loki-exporter_*.ipk $(LOKI_EXPORTER_DSTDIR)/ ; \
+        for ext in ipk apk; do \
+            for f in $$(find bin/packages/$(OPENWRT_ARCH)/ -name "loki-exporter_*.$${ext}" 2>/dev/null); do \
+                cp "$$f" $(LOKI_EXPORTER_DSTDIR)/ ; \
+            done ; \
+        done ; \
+        ls -la $(LOKI_EXPORTER_DSTDIR)/ ; \
         }
 
 .PHONY: clean
