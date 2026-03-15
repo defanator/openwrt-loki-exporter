@@ -21,6 +21,7 @@ BUILD   := $(shell git describe --tags --long --always --dirty)-$(DATE)-$(GITHUB
 TEST_SHELL ?= /bin/bash
 
 SHOW_ENV_VARS = \
+	SHELL \
 	VERSION \
 	RELEASE \
 	GITHUB_SHA \
