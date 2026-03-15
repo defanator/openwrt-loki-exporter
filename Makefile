@@ -58,6 +58,8 @@ export-env: $(addprefix export-var-, $(SHOW_ENV_VARS)) ## Export environment
 
 -include $(OPENWRT_CROSSBUILD_ENV_DIR)/Makefile.crossbuild
 OPENWRT_SRCDIR ?= $(error OPENWRT_SRCDIR is not defined - might be an issue with including Makefile.crossbuild)
+OPENWRT_ARCH ?= $(error OPENWRT_ARCH is not defined - might be an issue with including Makefile.crossbuild)
+OPENWRT_PKG_EXT ?= $(error OPENWRT_PKG_EXT is not defined - might be an issue with including Makefile.crossbuild)
 
 results:
 	mkdir -p results
@@ -215,12 +217,12 @@ package: loki-exporter ## Build OpenWRT package
         }
 
 .PHONY: prepare-artifacts
-prepare-artifacts: ## Save loki-exporter artifacts (.ipk packages)
+prepare-artifacts: ## Save loki-exporter artifacts (.ipk/.apk packages)
 	@{ \
         set -ex ; \
         cd $(OPENWRT_SRCDIR) ; \
         mkdir -p $(LOKI_EXPORTER_DSTDIR) ; \
-        cp bin/packages/$(OPENWRT_ARCH)/loki_exporter/loki-exporter_*.ipk $(LOKI_EXPORTER_DSTDIR)/ ; \
+        cp bin/packages/$(OPENWRT_ARCH)/loki_exporter/loki-exporter_*$(OPENWRT_PKG_EXT) $(LOKI_EXPORTER_DSTDIR)/ ; \
         }
 
 .PHONY: clean
