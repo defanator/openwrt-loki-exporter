@@ -55,7 +55,7 @@ export-var-%:
 
 export-env: $(addprefix export-var-, $(SHOW_ENV_VARS)) ## Export environment
 
-include $(OPENWRT_CROSSBUILD_ENV_DIR)/Makefile.crossbuild
+-include $(OPENWRT_CROSSBUILD_ENV_DIR)/Makefile.crossbuild
 
 results:
 	mkdir -p results
