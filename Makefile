@@ -58,7 +58,6 @@ export-env: $(addprefix export-var-, $(SHOW_ENV_VARS)) ## Export environment
 
 -include $(OPENWRT_CROSSBUILD_ENV_DIR)/Makefile.crossbuild
 OPENWRT_SRCDIR ?= $(error OPENWRT_SRCDIR is not defined - might be an issue with including Makefile.crossbuild)
-OPENWRT_ARCH ?= $(error OPENWRT_ARCH is not defined - might be an issue with including Makefile.crossbuild)
 OPENWRT_PKG_EXT ?= $(error OPENWRT_PKG_EXT is not defined - might be an issue with including Makefile.crossbuild)
 
 results:
