@@ -17,7 +17,7 @@ on:
         description: "OpenWrt arch"
         type: string
         required: true
-        default: "mips_24kc"
+        default: "auto"
       openwrt_target:
         description: "OpenWrt target"
         type: string
@@ -37,7 +37,7 @@ on:
 jobs:
   build:
     name: "v${{ matrix.build_env.tag }} - ${{ matrix.build_env.pkgarch }} :: ${{ matrix.build_env.target }}/${{ matrix.build_env.subtarget }} openwrt build"
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         build_env:
@@ -55,75 +55,38 @@ jobs:
       OPENWRT_VERMAGIC: ${{ matrix.build_env.vermagic }}
 
     steps:
+      - name: checkout openwrt-crossbuild-env
+        uses: actions/checkout@v6
+        with:
+          path: openwrt-crossbuild-env
+          repository: defanator/openwrt-crossbuild-env
+          ref: ci
+          fetch-depth: 0
+
       - name: checkout openwrt-loki-exporter
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: openwrt-loki-exporter
           fetch-depth: 0
 
       - name: checkout openwrt
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: openwrt
           repository: openwrt/openwrt
           ref: v${{ matrix.build_env.tag }}
           fetch-depth: 0
 
-      - name: restore cached toolchain
-        id: restore-toolchain-cache
-        uses: actions/cache/restore@v4
-        with:
-          fail-on-cache-miss: false
-          key: ${{ runner.os }}-openwrt-cache-toolchain-${{ matrix.build_env.tag }}-${{ matrix.build_env.pkgarch }}-${{ matrix.build_env.target }}-${{ matrix.build_env.subtarget }}
-          restore-keys: |
-            ${{ runner.os }}-openwrt-cache-toolchain-${{ matrix.build_env.pkgarch }}-
-          path: |
-            openwrt/.config
-            openwrt/.config.old
-            openwrt/feeds.conf
-            openwrt/bin/**
-            openwrt/build_dir/**
-            openwrt/dl/**
-            openwrt/feeds/**
-            openwrt/package/**
-            openwrt/staging_dir/**
-            openwrt/tmp/**
-
-      - name: building openwrt toolchain
-        if: steps.restore-toolchain-cache.outputs.cache-hit != 'true'
-        id: build-toolchain
-        run: |
-          set -x
-          cd openwrt-loki-exporter
-          make show-env
-          time -p make build-toolchain
-          make purge-circular-symlinks
-
-      - name: save toolchain cache
-        if: steps.restore-toolchain-cache.outputs.cache-hit != 'true'
-        id: save-toolchain-cache
-        uses: actions/cache/save@v4
-        with:
-          key: ${{ runner.os }}-openwrt-cache-toolchain-${{ matrix.build_env.tag }}-${{ matrix.build_env.pkgarch }}-${{ matrix.build_env.target }}-${{ matrix.build_env.subtarget }}
-          path: |
-            openwrt/.config
-            openwrt/.config.old
-            openwrt/feeds.conf
-            openwrt/bin/**
-            openwrt/build_dir/**
-            openwrt/dl/**
-            openwrt/feeds/**
-            openwrt/package/**
-            openwrt/staging_dir/**
-            openwrt/tmp/**
-
       - name: build package
         id: build-package
+        env:
+          OPENWRT_SRCDIR: ../openwrt
         run: |
           set -x
           cd openwrt-loki-exporter
           make show-env
           make export-env >> $GITHUB_OUTPUT
+          time -p make prepare
           time -p make package
           make prepare-artifacts
 
