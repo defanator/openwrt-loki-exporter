@@ -221,7 +221,7 @@ prepare-artifacts: ## Save loki-exporter artifacts (.ipk/.apk packages)
         set -ex ; \
         cd $(OPENWRT_SRCDIR) ; \
         mkdir -p $(LOKI_EXPORTER_DSTDIR) ; \
-        cp bin/packages/$(OPENWRT_ARCH)/loki_exporter/loki-exporter_*$(OPENWRT_PKG_EXT) $(LOKI_EXPORTER_DSTDIR)/ ; \
+        cp bin/packages/$(OPENWRT_ARCH)/loki_exporter/loki-exporter$(OPENWRT_PKG_EXT) $(LOKI_EXPORTER_DSTDIR)/ ; \
         }
 
 .PHONY: clean
