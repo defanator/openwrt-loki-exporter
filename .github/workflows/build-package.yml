@@ -8,44 +8,52 @@ on:
       - main
   workflow_dispatch:
     inputs:
-      openwrt_version:
-        description: "OpenWrt version"
+      openwrt_versions:
+        description: "OpenWrt version(s)"
         type: string
         required: true
-        default: "23.05.3"
-      openwrt_arch:
-        description: "OpenWrt arch"
-        type: string
-        required: true
-        default: "auto"
-      openwrt_target:
-        description: "OpenWrt target"
-        type: string
-        required: true
-        default: "ath79"
-      openwrt_subtarget:
-        description: "OpenWrt subtarget"
-        type: string
-        required: true
-        default: "generic"
-      openwrt_vermagic:
-        description: "OpenWrt vermagic"
-        type: string
-        required: true
-        default: "auto"
+        default: "23.05.3 25.12.0"
 
 jobs:
+  generate-target-matrix:
+    runs-on: ubuntu-24.04
+    outputs:
+      build-matrix: ${{ steps.generate-target-matrix.outputs.BUILD_MATRIX }}
+    env:
+      OPENWRT_RELEASES: ${{ inputs.openwrt_versions || vars.DEFAULT_OPENWRT_VERSIONS }}
+    steps:
+      - name: checkout openwrt-crossbuild-env
+        uses: actions/checkout@v6
+        with:
+          path: openwrt-crossbuild-env
+          repository: defanator/openwrt-crossbuild-env
+          ref: ci
+          fetch-depth: 0
+
+      - name: checkout openwrt-loki-exporter
+        uses: actions/checkout@v6
+        with:
+          path: openwrt-loki-exporter
+          fetch-depth: 0
+
+      - name: generate target matrix
+        id: generate-target-matrix
+        env:
+          OPENWRT_TARGET_MATRIX_CONFIG:
+        run: |
+          set -x
+          export OPENWRT_TARGET_MATRIX_CONFIG=$(pwd)/openwrt-loki-exporter/ci/target-matrix-config.yaml
+          cd openwrt-loki-exporter
+          make generate-target-matrix >> "$GITHUB_OUTPUT"
+
   build:
     name: "v${{ matrix.build_env.tag }} - ${{ matrix.build_env.pkgarch }} :: ${{ matrix.build_env.target }}/${{ matrix.build_env.subtarget }} openwrt build"
     runs-on: ubuntu-24.04
+    needs: generate-target-matrix
     strategy:
+      fail-fast: false
       matrix:
-        build_env:
-          - tag: ${{ inputs.openwrt_version || vars.DEFAULT_OPENWRT_VERSION }}
-            pkgarch: ${{ inputs.openwrt_arch || vars.DEFAULT_OPENWRT_ARCH }}
-            target: ${{ inputs.openwrt_target || vars.DEFAULT_OPENWRT_TARGET }}
-            subtarget: ${{ inputs.openwrt_subtarget || vars.DEFAULT_OPENWRT_SUBTARGET }}
-            vermagic: ${{ inputs.openwrt_vermagic || vars.DEFAULT_OPENWRT_VERMAGIC }}
+        build_env: ${{ fromJson(needs.generate-target-matrix.outputs.build-matrix) }}
 
     env:
       OPENWRT_RELEASE: ${{ matrix.build_env.tag }}
