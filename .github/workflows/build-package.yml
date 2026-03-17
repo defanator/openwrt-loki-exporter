@@ -36,6 +36,14 @@ jobs:
           path: openwrt-loki-exporter
           fetch-depth: 0
 
+      - name: prepare virtualenv
+        id: prepare-virtualenv
+        run: |
+          set -x
+          cd openwrt-crossbuild-env
+          make show-env
+          make openwrt-crossbuild-env-venv
+
       - name: generate target matrix
         id: generate-target-matrix
         env:
