@@ -39,10 +39,10 @@ jobs:
       - name: generate target matrix
         id: generate-target-matrix
         env:
-          OPENWRT_TARGET_MATRIX_CONFIG: ci/target-matrix-config.yaml
+          OPENWRT_TARGET_MATRIX_CONFIG: ../openwrt-loki-exporter/ci/target-matrix-config.yaml
         run: |
           set -x
-          cd openwrt-loki-exporter
+          cd openwrt-crossbuild-env
           make generate-target-matrix >> "$GITHUB_OUTPUT"
 
   build:
