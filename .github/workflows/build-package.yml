@@ -27,7 +27,7 @@ jobs:
         with:
           path: openwrt-crossbuild-env
           repository: defanator/openwrt-crossbuild-env
-          ref: ci
+          ref: 20260320
           fetch-depth: 0
 
       - name: checkout openwrt-loki-exporter
