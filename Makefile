@@ -4,31 +4,10 @@ TOPDIR := $(realpath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 SELF := $(abspath $(lastword $(MAKEFILE_LIST)))
 UPPERDIR := $(realpath $(TOPDIR)/../)
 
-OPENWRT_SRCDIR   ?= $(UPPERDIR)/openwrt
+OPENWRT_CROSSBUILD_ENV_DIR ?= $(UPPERDIR)/openwrt-crossbuild-env
+
 LOKI_EXPORTER_SRCDIR ?= $(TOPDIR)
 LOKI_EXPORTER_DSTDIR ?= $(UPPERDIR)/loki_exporter_artifacts
-
-OPENWRT_RELEASE   ?= 23.05.3
-OPENWRT_ARCH      ?= mips_24kc
-OPENWRT_TARGET    ?= ath79
-OPENWRT_SUBTARGET ?= generic
-OPENWRT_VERMAGIC  ?= auto
-
-OPENWRT_ROOT_URL  ?= https://downloads.openwrt.org/releases
-OPENWRT_BASE_URL  ?= $(OPENWRT_ROOT_URL)/$(OPENWRT_RELEASE)/targets/$(OPENWRT_TARGET)/$(OPENWRT_SUBTARGET)
-OPENWRT_MANIFEST  ?= $(OPENWRT_BASE_URL)/openwrt-$(OPENWRT_RELEASE)-$(OPENWRT_TARGET)-$(OPENWRT_SUBTARGET).manifest
-
-ifndef OPENWRT_VERMAGIC
-_NEED_VERMAGIC=1
-endif
-
-ifeq ($(OPENWRT_VERMAGIC), auto)
-_NEED_VERMAGIC=1
-endif
-
-ifeq ($(_NEED_VERMAGIC), 1)
-OPENWRT_VERMAGIC := $(shell curl -fs $(OPENWRT_MANIFEST) | grep -- "^kernel" | sed -e "s,.*\-,,")
-endif
 
 GITHUB_RUN_ID ?= 0
 GITHUB_SHA    ?= $(shell git rev-parse --short HEAD)
@@ -42,6 +21,7 @@ BUILD   := $(shell git describe --tags --long --always --dirty)-$(DATE)-$(GITHUB
 TEST_SHELL ?= /bin/bash
 
 SHOW_ENV_VARS = \
+	SHELL \
 	VERSION \
 	RELEASE \
 	GITHUB_SHA \
@@ -75,6 +55,10 @@ export-var-%:
 	}
 
 export-env: $(addprefix export-var-, $(SHOW_ENV_VARS)) ## Export environment
+
+-include $(OPENWRT_CROSSBUILD_ENV_DIR)/Makefile.crossbuild
+OPENWRT_SRCDIR ?= $(error OPENWRT_SRCDIR is not defined - might be an issue with including Makefile.crossbuild)
+OPENWRT_PKG_EXT ?= $(error OPENWRT_PKG_EXT is not defined - might be an issue with including Makefile.crossbuild)
 
 results:
 	mkdir -p results
@@ -197,53 +181,6 @@ compare-logs: | results
 save-logs: | results
 	docker logs tests-loki-1 >results/loki.log 2>&1
 
-$(OPENWRT_SRCDIR):
-	@{ \
-	set -ex ; \
-	git clone https://github.com/openwrt/openwrt.git $@ ; \
-	cd $@ ; \
-	git checkout v$(OPENWRT_RELEASE) ; \
-	}
-
-$(OPENWRT_SRCDIR)/feeds.conf: | $(OPENWRT_SRCDIR)
-	@{ \
-	set -ex ; \
-	curl -fsL $(OPENWRT_BASE_URL)/feeds.buildinfo | tee $@ ; \
-	}
-
-$(OPENWRT_SRCDIR)/.config: | $(OPENWRT_SRCDIR)
-	@{ \
-	set -ex ; \
-	curl -fsL $(OPENWRT_BASE_URL)/config.buildinfo > $@ ; \
-	}
-
-.PHONY: build-toolchain
-build-toolchain: $(OPENWRT_SRCDIR)/feeds.conf $(OPENWRT_SRCDIR)/.config ## Build OpenWrt toolchain
-	@{ \
-	set -ex ; \
-	cd $(OPENWRT_SRCDIR) ; \
-	time -p ./scripts/feeds update ; \
-	time -p ./scripts/feeds install -a ; \
-	time -p make defconfig ; \
-	time -p make tools/install -i -j $(NPROC) ; \
-	time -p make toolchain/install -i -j $(NPROC) ; \
-	}
-
-# TODO: this should not be required but actions/cache/save@v4 could not handle circular symlinks with error like this:
-# Warning: ELOOP: too many symbolic links encountered, stat '/home/runner/work/amneziawg-openwrt/amneziawg-openwrt/openwrt/staging_dir/toolchain-mips_24kc_gcc-11.2.0_musl/initial/lib/lib'
-# Warning: Cache save failed.
-.PHONY: purge-circular-symlinks
-purge-circular-symlinks:
-	@{ \
-	set -ex ; \
-	cd $(OPENWRT_SRCDIR) ; \
-	export LC_ALL=C ; \
-	for deadlink in $$(find . -follow -type l -printf "" 2>&1 | sed -e "s/find: '\(.*\)': Too many levels of symbolic links.*/\1/"); do \
-		echo "deleting dead link: $${deadlink}" ; \
-		rm -f "$${deadlink}" ; \
-	done ; \
-	}
-
 loki-exporter: loki_exporter.sh loki_exporter.init loki_exporter.conf
 	mkdir -p $(TOPDIR)/$@
 	sed \
@@ -279,12 +216,12 @@ package: loki-exporter ## Build OpenWRT package
         }
 
 .PHONY: prepare-artifacts
-prepare-artifacts: ## Save loki-exporter artifacts (.ipk packages)
+prepare-artifacts: ## Save loki-exporter artifacts (.ipk/.apk packages)
 	@{ \
         set -ex ; \
         cd $(OPENWRT_SRCDIR) ; \
         mkdir -p $(LOKI_EXPORTER_DSTDIR) ; \
-        cp bin/packages/$(OPENWRT_ARCH)/loki_exporter/loki-exporter_*.ipk $(LOKI_EXPORTER_DSTDIR)/ ; \
+        cp bin/packages/$(OPENWRT_ARCH)/loki_exporter/loki-exporter*$(OPENWRT_PKG_EXT) $(LOKI_EXPORTER_DSTDIR)/ ; \
         }
 
 .PHONY: clean
