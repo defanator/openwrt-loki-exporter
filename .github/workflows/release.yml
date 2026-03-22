@@ -111,7 +111,7 @@ jobs:
           path: loki_exporter_artifacts/*
 
   collect-artifacts:
-    name: "Collect all build artifacts"
+    name: "collect all build artifacts from matrix builds"
     runs-on: ubuntu-24.04
     needs: build
     steps:
@@ -135,7 +135,7 @@ jobs:
           path: all-artifacts/*
 
   create-release:
-    name: "Create GitHub Release"
+    name: "create GitHub release"
     runs-on: ubuntu-24.04
     needs: [build, collect-artifacts]
     permissions:
