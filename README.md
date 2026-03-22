@@ -103,4 +103,4 @@ payload.
 
 # Copyright
 
-Copyright © 2024-2025 Andrei Belov. Released under the [MIT License](LICENSE).
+Copyright © 2024-2026 Andrei Belov. Released under the [MIT License](LICENSE).
