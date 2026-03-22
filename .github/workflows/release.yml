@@ -6,47 +6,59 @@ on:
       - "v*.*.*"
   workflow_dispatch:
     inputs:
-      openwrt_version:
-        description: "OpenWrt version"
+      openwrt_versions:
+        description: "OpenWrt version(s)"
         type: string
-        required: true
-        default: "23.05.3"
-      openwrt_arch:
-        description: "OpenWrt arch"
-        type: string
-        required: true
-        default: "mips_24kc"
-      openwrt_target:
-        description: "OpenWrt target"
-        type: string
-        required: true
-        default: "ath79"
-      openwrt_subtarget:
-        description: "OpenWrt subtarget"
-        type: string
-        required: true
-        default: "generic"
-      openwrt_vermagic:
-        description: "OpenWrt vermagic"
-        type: string
-        required: true
-        default: "auto"
+        required: false
+        default: ""
 
 jobs:
+  generate-target-matrix:
+    runs-on: ubuntu-24.04
+    outputs:
+      build-matrix: ${{ steps.generate-target-matrix.outputs.BUILD_MATRIX }}
+    env:
+      OPENWRT_RELEASES: ${{ inputs.openwrt_versions || vars.DEFAULT_OPENWRT_VERSIONS }}
+    steps:
+      - name: checkout openwrt-crossbuild-env
+        uses: actions/checkout@v6
+        with:
+          path: openwrt-crossbuild-env
+          repository: defanator/openwrt-crossbuild-env
+          ref: 20260320
+          fetch-depth: 0
+
+      - name: checkout openwrt-loki-exporter
+        uses: actions/checkout@v6
+        with:
+          path: openwrt-loki-exporter
+          fetch-depth: 0
+
+      - name: prepare virtualenv
+        id: prepare-virtualenv
+        run: |
+          set -x
+          cd openwrt-crossbuild-env
+          make show-env
+          make openwrt-crossbuild-env-venv
+
+      - name: generate target matrix
+        id: generate-target-matrix
+        env:
+          OPENWRT_TARGET_MATRIX_CONFIG: ../openwrt-loki-exporter/ci/target-matrix-config.yaml
+        run: |
+          set -x
+          cd openwrt-crossbuild-env
+          make generate-target-matrix >> "$GITHUB_OUTPUT"
+
   build:
     name: "v${{ matrix.build_env.tag }} - ${{ matrix.build_env.pkgarch }} :: ${{ matrix.build_env.target }}/${{ matrix.build_env.subtarget }} openwrt build"
-    runs-on: ubuntu-22.04
-    permissions:
-      contents: write
-      packages: write
+    runs-on: ubuntu-24.04
+    needs: generate-target-matrix
     strategy:
+      fail-fast: false
       matrix:
-        build_env:
-          - tag: ${{ inputs.openwrt_version || vars.DEFAULT_OPENWRT_VERSION }}
-            pkgarch: ${{ inputs.openwrt_arch || vars.DEFAULT_OPENWRT_ARCH }}
-            target: ${{ inputs.openwrt_target || vars.DEFAULT_OPENWRT_TARGET }}
-            subtarget: ${{ inputs.openwrt_subtarget || vars.DEFAULT_OPENWRT_SUBTARGET }}
-            vermagic: ${{ inputs.openwrt_vermagic || vars.DEFAULT_OPENWRT_VERMAGIC }}
+        build_env: ${{ fromJson(needs.generate-target-matrix.outputs.build-matrix) }}
 
     env:
       OPENWRT_RELEASE: ${{ matrix.build_env.tag }}
@@ -56,80 +68,88 @@ jobs:
       OPENWRT_VERMAGIC: ${{ matrix.build_env.vermagic }}
 
     steps:
+      - name: checkout openwrt-crossbuild-env
+        uses: actions/checkout@v6
+        with:
+          path: openwrt-crossbuild-env
+          repository: defanator/openwrt-crossbuild-env
+          ref: 20260320
+          fetch-depth: 0
+
       - name: checkout openwrt-loki-exporter
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: openwrt-loki-exporter
           fetch-depth: 0
 
       - name: checkout openwrt
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: openwrt
           repository: openwrt/openwrt
           ref: v${{ matrix.build_env.tag }}
           fetch-depth: 0
 
-      - name: restore cached toolchain
-        id: restore-toolchain-cache
-        uses: actions/cache/restore@v4
-        with:
-          fail-on-cache-miss: false
-          key: ${{ runner.os }}-openwrt-cache-toolchain-${{ matrix.build_env.tag }}-${{ matrix.build_env.pkgarch }}-${{ matrix.build_env.target }}-${{ matrix.build_env.subtarget }}
-          restore-keys: |
-            ${{ runner.os }}-openwrt-cache-toolchain-${{ matrix.build_env.pkgarch }}-
-          path: |
-            openwrt/.config
-            openwrt/.config.old
-            openwrt/feeds.conf
-            openwrt/bin/**
-            openwrt/build_dir/**
-            openwrt/dl/**
-            openwrt/feeds/**
-            openwrt/package/**
-            openwrt/staging_dir/**
-            openwrt/tmp/**
-
-      - name: building openwrt toolchain
-        if: steps.restore-toolchain-cache.outputs.cache-hit != 'true'
-        id: build-toolchain
-        run: |
-          set -x
-          cd openwrt-loki-exporter
-          make show-env
-          time -p make build-toolchain
-          make purge-circular-symlinks
-
-      - name: save toolchain cache
-        if: steps.restore-toolchain-cache.outputs.cache-hit != 'true'
-        id: save-toolchain-cache
-        uses: actions/cache/save@v4
-        with:
-          key: ${{ runner.os }}-openwrt-cache-toolchain-${{ matrix.build_env.tag }}-${{ matrix.build_env.pkgarch }}-${{ matrix.build_env.target }}-${{ matrix.build_env.subtarget }}
-          path: |
-            openwrt/.config
-            openwrt/.config.old
-            openwrt/feeds.conf
-            openwrt/bin/**
-            openwrt/build_dir/**
-            openwrt/dl/**
-            openwrt/feeds/**
-            openwrt/package/**
-            openwrt/staging_dir/**
-            openwrt/tmp/**
-
       - name: build package
         id: build-package
+        env:
+          OPENWRT_SRCDIR: ../openwrt
         run: |
           set -x
           cd openwrt-loki-exporter
           make show-env
-          make export-env >> $GITHUB_OUTPUT
+          make export-env >> "$GITHUB_OUTPUT"
+          time -p make prepare
+          time -p make fix-host-symlinks
           time -p make package
           make prepare-artifacts
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: loki-exporter-${{ steps.build-package.outputs.version_str }}_v${{ matrix.build_env.tag }}_${{ matrix.build_env.pkgarch }}_${{ matrix.build_env.target }}_${{ matrix.build_env.subtarget }}
+          path: loki_exporter_artifacts/*
+
+  collect-artifacts:
+    name: "Collect all build artifacts"
+    runs-on: ubuntu-24.04
+    needs: build
+    steps:
+      - name: download all artifacts
+        uses: actions/download-artifact@v7
+        with:
+          path: all-artifacts
+          pattern: loki-exporter-*
+          merge-multiple: true
+
+      - name: list artifacts
+        id: list-artifacts
+        run: |
+          echo "Downloaded artifacts:"
+          ls -la all-artifacts/
+
+      - name: upload combined artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-artifacts
+          path: all-artifacts/*
+
+  create-release:
+    name: "Create GitHub Release"
+    runs-on: ubuntu-24.04
+    needs: [build, collect-artifacts]
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: download combined artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: release-artifacts
+          path: release-artifacts
 
       - name: create release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            loki_exporter_artifacts/*
+            release-artifacts/*
