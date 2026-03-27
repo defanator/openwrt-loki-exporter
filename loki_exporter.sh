@@ -11,8 +11,12 @@ PIPE_NAME="${_TMPDIR}/loki_exporter.pipe"
 BULK_DATA="${_TMPDIR}/loki_exporter.boot"
 LOCAL_LOG="${_TMPDIR}/log"
 
-LOKI_MSG_TEMPLATE="{\"streams\": [{\"stream\": {\"job\": \"openwrt_loki_exporter\", \"host\": \"${HOSTNAME}\"}, \"values\": [[\"TIMESTAMP\", \"MESSAGE\"]]}]}"
-LOKI_BULK_TEMPLATE_HEADER="{\"streams\": [{\"stream\": {\"job\": \"openwrt_loki_exporter\", \"host\": \"${HOSTNAME}\"}, \"values\": ["
+# Generate a unique Boot ID (Unix timestamp) to prevent stream collisions
+BOOT_ID_VAL="$(date +%s)"
+
+# Define templates
+LOKI_MSG_TEMPLATE="{\"streams\": [{\"stream\": {\"job\": \"openwrt_loki_exporter\", \"host\": \"${HOSTNAME}\", \"boot_id\": \"${BOOT_ID_VAL}\"}, \"values\": [[\"TIMESTAMP\", \"MESSAGE\"]]}]}"
+LOKI_BULK_TEMPLATE_HEADER="{\"streams\": [{\"stream\": {\"job\": \"openwrt_loki_exporter\", \"host\": \"${HOSTNAME}\", \"boot_id\": \"${BOOT_ID_VAL}\"}, \"values\": ["
 LOKI_BULK_TEMPLATE_MSG="[\"TIMESTAMP\", \"MESSAGE\"],"
 LOKI_BULK_TEMPLATE_FOOTER="]}]}"
 
@@ -22,16 +26,30 @@ OS=$(uname -s | tr "[:upper:]" "[:lower:]")
 USER_AGENT="openwrt-loki-exporter/%% VERSION %%"
 BUILD_ID="%% BUILD_ID %%"
 
+# Pre-calculate a literal tab character for substitution
+TAB_CHAR="$(printf '\t')"
+
+_escape_json_string() {
+    # 1. Escape backslashes first (to avoid double escaping later)
+    local s="${1//\\/\\\\}"
+    # 2. Escape double quotes
+    s="${s//\"/\\\"}"
+    # 3. Escape tabs
+    s="${s//${TAB_CHAR}/\\t}"
+    echo "$s"
+}
+
 _curl_bulk_cmd() {
 if [ "${AUTOTEST-0}" -eq 1 ]; then
-    curl --no-progress-meter -fv \
+    curl --no-progress-meter -v \
         -H "Content-Type: application/json" \
         -H "Content-Encoding: gzip" \
         -H "User-Agent: ${USER_AGENT}" \
         -H "Connection: close" \
         "$@"
 else
-    curl --no-progress-meter -fi \
+    # -i included to capture HTTP headers/errors
+    curl --no-progress-meter -i \
         -H "Content-Type: application/json" \
         -H "Content-Encoding: gzip" \
         -H "User-Agent: ${USER_AGENT}" \
@@ -43,13 +61,13 @@ fi
 
 _curl_cmd() {
 if [ "${AUTOTEST-0}" -eq 1 ]; then
-    curl --no-progress-meter -fv \
+    curl --no-progress-meter -v \
         -H "Content-Type: application/json" \
         -H "User-Agent: ${USER_AGENT}" \
         -H "Connection: close" \
         "$@"
 else
-    curl -fsS \
+    curl -sS \
         -H "Content-Type: application/json" \
         -H "User-Agent: ${USER_AGENT}" \
         -H "Authorization: Basic ${LOKI_AUTH_HEADER}" \
@@ -108,6 +126,8 @@ _do_bulk_post() {
     _log_file="$1"
     post_body="${LOKI_BULK_TEMPLATE_HEADER}"
 
+    last_ts=0
+
     while read -r line; do
         ts="${line:26:14}"
         ts_ms="${ts/./}"
@@ -119,8 +139,17 @@ _do_bulk_post() {
             continue
         fi
 
-        msg="${line:42:2000}"
-        msg="${msg//\"/\\\"}"
+        # Enforce Monotonicity
+        if [ "${ts_ns}" -le "${last_ts}" ]; then
+             ts_ns=$((last_ts + 1))
+        fi
+        last_ts=${ts_ns}
+
+        # Raw message
+        msg_raw="${line:42:2000}"
+        
+        # Sanitize message
+        msg="$(_escape_json_string "$msg_raw")"
 
         msg_payload="${LOKI_BULK_TEMPLATE_MSG}"
         msg_payload="${msg_payload/TIMESTAMP/$ts_ns}"
@@ -133,8 +162,33 @@ _do_bulk_post() {
     echo "${post_body}" | gzip >"${_log_file}.payload.gz"
     rm -f "${_log_file}"
 
-    if ! _curl_bulk_cmd --data-binary "@${_log_file}.payload.gz" "${LOKI_PUSH_URL}" >"${_log_file}.payload.gz-response" 2>&1; then
-        echo "BULK POST FAILED: leaving ${_log_file}.payload.gz for now" >>"${LOCAL_LOG}"
+    # RETRY LOOP
+    max_retries=20
+    attempt=0
+    success=0
+    while [ $attempt -lt $max_retries ]; do
+        if _curl_bulk_cmd --data-binary "@${_log_file}.payload.gz" "${LOKI_PUSH_URL}" >"${_log_file}.payload.gz-response" 2>&1; then
+            
+            # Check for HTTP 400/500 errors even if curl exits 0
+            if grep -q "400 Bad Request" "${_log_file}.payload.gz-response"; then
+                 echo "BULK POST FAILED (400 Bad Request). Content:" >>"${LOCAL_LOG}"
+                 cat "${_log_file}.payload.gz-response" >>"${LOCAL_LOG}"
+                 break
+            fi
+
+            echo "BULK POST SUCCESS: Boot logs sent." >>"${LOCAL_LOG}"
+            rm -f "${_log_file}.payload.gz" "${_log_file}.payload.gz-response"
+            success=1
+            break
+        fi
+
+        attempt=$((attempt+1))
+        echo "BULK POST FAILED (Attempt $attempt/$max_retries): Retrying in 15s..." >>"${LOCAL_LOG}"
+        sleep 15
+    done
+
+    if [ $success -eq 0 ]; then
+        echo "BULK POST FAILED: Gave up." >>"${LOCAL_LOG}"
     fi
 }
 
@@ -265,8 +319,8 @@ _main_loop() {
             fi
         fi
 
-        msg="${line:42:2000}"
-        msg="${msg//\"/\\\"}"
+        msg_raw="${line:42:2000}"
+        msg="$(_escape_json_string "$msg_raw")"
 
         post_body="${LOKI_MSG_TEMPLATE}"
         post_body="${post_body/TIMESTAMP/$ts_ns}"
